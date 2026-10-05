@@ -1,0 +1,7 @@
+{
+  "name": "FixMySEO",
+  "description": "AI-powered instant SEO auditor, Google Search grounded website health checks, and viral Hinglish roast generator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
