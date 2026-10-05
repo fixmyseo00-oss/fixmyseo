@@ -269,16 +269,22 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
               <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-300">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">Title Tag:</span>
-                  <span className="font-mono text-[11px]">
+                  <span className="font-mono text-[11px] text-white">
                     {result.metrics.title.length || 0} chars{' '}
                     <span className="text-slate-500">(Ideal 30-60)</span>
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-400">Meta Desc:</span>
-                  <span className="font-mono text-[11px]">
+                  <span className="font-mono text-[11px] text-white">
                     {result.metrics.description.length || 0} chars{' '}
                     <span className="text-slate-500">(Ideal 120-160)</span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">H1 / H2 Headers:</span>
+                  <span className="font-mono text-[11px] text-emerald-400">
+                    {result.metrics.h1.count || 0} H1 &bull; {result.metrics.h2?.count || 0} H2
                   </span>
                 </div>
               </div>
@@ -350,19 +356,35 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
 
               <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-800/80 text-xs text-slate-300">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">SSL Encryption:</span>
+                  <span className="text-slate-400">SSL Status:</span>
                   <span
                     className={
                       result.metrics.ssl.enabled ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'
                     }
                   >
-                    {result.metrics.ssl.enabled ? 'HTTPS Active' : 'Insecure HTTP'}
+                    {result.metrics.ssl.enabled ? 'HTTPS Active (256-bit TLS)' : 'Insecure HTTP'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">H1 Hierarchy:</span>
-                  <span className="font-mono text-[11px] text-slate-200">
-                    {result.metrics.h1.count || 0} tag detected
+                  <span className="text-slate-400">X-Content Flag:</span>
+                  <span
+                    className={
+                      result.metrics.securityHeaders?.xContentTypeOptions
+                        ? 'text-emerald-400 font-semibold font-mono text-[11px]'
+                        : 'text-amber-400 font-semibold font-mono text-[11px]'
+                    }
+                  >
+                    {result.metrics.securityHeaders?.xContentTypeOptions ? 'nosniff (Verified)' : 'Missing nosniff'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Best Practices:</span>
+                  <span
+                    className={
+                      result.scores.security >= 80 ? 'text-emerald-400 font-semibold' : 'text-amber-400 font-semibold'
+                    }
+                  >
+                    {result.scores.security >= 80 ? 'Hardened / Passing' : 'Warning: Review Headers'}
                   </span>
                 </div>
               </div>

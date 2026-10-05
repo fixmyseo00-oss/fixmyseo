@@ -46,6 +46,12 @@ const INITIAL_DEMO_RESULT: AuditResult = {
       status: 'warning',
       message: 'Detected 2 <h1> tags. Multiple H1 tags dilute topical search relevance.',
     },
+    h2: {
+      text: 'H2 Subheadings: 5 detected',
+      count: 5,
+      status: 'good',
+      message: '5 H2 subheadings detected.',
+    },
     mobile: {
       viewportFound: true,
       status: 'good',
@@ -63,6 +69,11 @@ const INITIAL_DEMO_RESULT: AuditResult = {
       enabled: true,
       status: 'good',
       message: 'Valid HTTPS SSL encryption active across all assets.',
+    },
+    securityHeaders: {
+      xContentTypeOptions: true,
+      status: 'good',
+      message: 'X-Content-Type-Options: nosniff header verified.',
     },
     images: {
       total: 14,

@@ -21,6 +21,8 @@ export interface MetricDetail {
   enabled?: boolean;
   total?: number;
   missingAlt?: number;
+  xContentTypeOptions?: boolean;
+  h2Count?: number;
   status: AuditStatus;
   message: string;
 }
@@ -67,9 +69,11 @@ export interface AuditResult {
     title: MetricDetail;
     description: MetricDetail;
     h1: MetricDetail;
+    h2?: MetricDetail;
     mobile: MetricDetail;
     speed: SpeedMetrics;
     ssl: MetricDetail;
+    securityHeaders?: MetricDetail;
     images: MetricDetail;
     canonical?: MetricDetail;
   };
