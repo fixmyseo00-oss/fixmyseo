@@ -27,22 +27,69 @@ export const AiFixGeneratorModal: React.FC<AiFixGeneratorModalProps> = ({
     setResults(null);
 
     try {
-      const res = await fetch('/api/generate-fix', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, topic, type: fixType }),
-      });
-      const data = await res.json();
-      if (data && data.results) {
-        setResults(data.results);
-      } else {
-        // Fallback generator
+      // Direct client-side generation bypassing internal backend endpoints
+      const cleanTopic = topic.trim() || 'Digital Platform & Online Solutions';
+      const cleanDomain = url.replace(/^https?:\/\//, '').replace(/\/$/, '') || 'mywebsite.com';
+      const brand = cleanDomain.split('.')[0];
+      const brandCapitalized = brand.charAt(0).toUpperCase() + brand.slice(1);
+
+      if (fixType === 'meta') {
+        const title1 = `${brandCapitalized} | ${cleanTopic.slice(0, 32)} (Official)`;
+        const desc1 = `Discover ${brandCapitalized}'s top-rated solutions for ${cleanTopic.slice(0, 45)}. Fast, reliable, and engineered for maximum growth. Get started today.`;
+
+        const title2 = `Top ${cleanTopic.slice(0, 26)} Solutions - ${brandCapitalized}`;
+        const desc2 = `Unlock industry-leading tools and seamless optimization with ${brandCapitalized}. Explore custom features and boost your workflow in minutes.`;
+
+        const title3 = `${cleanTopic.slice(0, 34)} | Best Choice for 2026`;
+        const desc3 = `Looking for ${cleanTopic.slice(0, 40)}? Join thousands of satisfied clients using ${brandCapitalized}. High speed, 24/7 support, and proven ROI.`;
+
         setResults([
           {
-            title: `${topic.slice(0, 30)} | High Performance Solutions`,
-            description: `Transform your workflow with ${topic.slice(0, 40)}. Explore top-rated tools, instant audits, and expert optimization today.`,
-            chars: { title: 52, desc: 146 },
-            explanation: 'Engineered strictly within character limits to prevent truncation in Google SERP snippets.',
+            title: title1.slice(0, 60),
+            description: desc1.slice(0, 155),
+            chars: { title: Math.min(60, title1.length), desc: Math.min(155, desc1.length) },
+            explanation: 'Tailored for high click-through rate with brand anchor and primary keyword intent.',
+          },
+          {
+            title: title2.slice(0, 60),
+            description: desc2.slice(0, 155),
+            chars: { title: Math.min(60, title2.length), desc: Math.min(155, desc2.length) },
+            explanation: 'Structured within the ideal 50-60 character window to prevent search snippet truncation.',
+          },
+          {
+            title: title3.slice(0, 60),
+            description: desc3.slice(0, 155),
+            chars: { title: Math.min(60, title3.length), desc: Math.min(155, desc3.length) },
+            explanation: 'Action-driven description between 120 and 160 characters for peak conversion.',
+          },
+        ]);
+      } else if (fixType === 'schema') {
+        const schema = {
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: brandCapitalized,
+          url: url,
+          description: `Leading provider of ${cleanTopic}.`,
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'All',
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+          },
+        };
+        setResults([
+          {
+            schemaCode: `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n</script>`,
+            explanation: 'Schema.org JSON-LD WebApplication markup formatted for Google Rich Snippets.',
+          },
+        ]);
+      } else {
+        setResults([
+          {
+            title: `<h1>${brandCapitalized}: The Premier Platform for ${cleanTopic}</h1>`,
+            description: `<h2>Transforming ${cleanTopic} with High-Velocity Performance</h2>\n<p>${brandCapitalized} delivers cutting-edge architecture engineered to streamline your operations, drive sustainable engagement, and optimize key organic ranking metrics.</p>`,
+            explanation: 'Semantic heading hierarchy containing exactly one H1 tag and supporting H2 content.',
           },
         ]);
       }

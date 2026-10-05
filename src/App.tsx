@@ -11,6 +11,7 @@ import { BatchAuditModal } from './components/BatchAuditModal';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 import { AuditResult, PlanType } from './types';
+import { runClientSideAudit } from './services/clientAuditor';
 import { Loader2, Sparkles, AlertCircle, History, Check } from 'lucide-react';
 
 const INITIAL_DEMO_RESULT: AuditResult = {
@@ -293,25 +294,17 @@ export default function App() {
     }, 2800);
 
     try {
-      const res = await fetch('/api/audit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: targetUrl,
-          roastLevel: targetRoastLevel,
-          roastLanguage: targetLanguage,
-        }),
-      });
+      // 1. Completely bypass internal backend API endpoints (remove fetch('/api/audit'))
+      // 2. Perform direct browser-based client-side request to Gemini endpoint and calculate real-time audit
+      const data: AuditResult = await runClientSideAudit(
+        targetUrl,
+        targetRoastLevel,
+        targetLanguage
+      );
 
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Server responded with status ${res.status}`);
-      }
-
-      const data: AuditResult = await res.json();
       setAuditResult(data);
 
       // Decrement free passes if on free plan
