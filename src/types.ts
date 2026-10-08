@@ -52,6 +52,41 @@ export interface GroundingSource {
   uri: string;
 }
 
+export interface AeoMetrics {
+  directAnswerReadiness: number;
+  schemaCompleteness: number;
+  faqSchemaDetected: boolean;
+  citationPotential: number;
+}
+
+export interface GeoMetrics {
+  brandEntityClarity: number;
+  informationGainScore: number;
+  llmContextRelevance: number;
+  aiOverviewsEligibility: boolean;
+}
+
+export interface CrawlerBlockerMetrics {
+  gptBotAllowed: boolean;
+  claudeBotAllowed: boolean;
+  googleExtendedAllowed: boolean;
+  perplexityBotAllowed: boolean;
+  ccBotAllowed: boolean;
+  status: 'accessible' | 'partially_blocked' | 'fully_blocked';
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  readTime: string;
+  publishDate: string;
+  summary: string;
+  content: string[];
+  keyTakeaways: string[];
+}
+
 export interface AuditResult {
   url: string;
   analyzedAt: string;
@@ -65,6 +100,9 @@ export interface AuditResult {
     contentStructure: number;
     security: number;
   };
+  aeo?: AeoMetrics;
+  geo?: GeoMetrics;
+  crawlerBlockers?: CrawlerBlockerMetrics;
   metrics: {
     title: MetricDetail;
     description: MetricDetail;

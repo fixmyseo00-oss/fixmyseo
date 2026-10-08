@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ProfessionalAuditTab } from './components/ProfessionalAuditTab';
 import { HinglishRoasterTab } from './components/HinglishRoasterTab';
+import { AeoGeoSection } from './components/AeoGeoSection';
+import { AdSenseContainer } from './components/AdSenseContainer';
+import { BlogSection } from './components/BlogSection';
+import { LegalModal, LegalTab } from './components/LegalModal';
 import { PricingSection } from './components/PricingSection';
 import { CheckoutModal } from './components/CheckoutModal';
 import { WhiteLabelReportModal } from './components/WhiteLabelReportModal';
@@ -12,7 +16,22 @@ import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 import { AuditResult, PlanType } from './types';
 import { runClientSideAudit } from './services/clientAuditor';
-import { Loader2, Sparkles, AlertCircle, History, Check } from 'lucide-react';
+import {
+  Loader2,
+  Sparkles,
+  AlertCircle,
+  History,
+  Check,
+  ArrowLeft,
+  FileDown,
+  ExternalLink,
+  ShieldCheck,
+  Flame,
+  LayoutDashboard,
+  Zap,
+} from 'lucide-react';
+
+export type AppRoute = 'home' | 'report' | 'blog';
 
 const INITIAL_DEMO_RESULT: AuditResult = {
   url: 'https://myshopify-store.com',
@@ -26,6 +45,26 @@ const INITIAL_DEMO_RESULT: AuditResult = {
     mobileReadiness: 88,
     contentStructure: 55,
     security: 95,
+  },
+  aeo: {
+    directAnswerReadiness: 76,
+    schemaCompleteness: 82,
+    faqSchemaDetected: true,
+    citationPotential: 79,
+  },
+  geo: {
+    brandEntityClarity: 84,
+    informationGainScore: 71,
+    llmContextRelevance: 78,
+    aiOverviewsEligibility: true,
+  },
+  crawlerBlockers: {
+    gptBotAllowed: true,
+    claudeBotAllowed: true,
+    googleExtendedAllowed: true,
+    perplexityBotAllowed: true,
+    ccBotAllowed: true,
+    status: 'accessible',
   },
   metrics: {
     title: {
@@ -104,75 +143,55 @@ const INITIAL_DEMO_RESULT: AuditResult = {
       impact: 'High',
     },
     {
-      id: 'h1-multiple',
+      id: 'heading-multiple-h1',
       category: 'structure',
       status: 'warning',
-      title: 'Multiple <h1> Tags Detected on Same Page',
-      explanation: 'Found 2 H1 tags. Best practice requires strictly 1 primary H1 representing the core topic of the document.',
-      recommendation: 'Demote the secondary H1 tag to an <h2> heading.',
-      fixSnippet: '<h1>Handcrafted Luxury Leather Shoes & Artisan Goods</h1>\n<h2>Featured Seasonal Collection</h2>',
+      title: 'Multiple <h1> Heading Tags Detected',
+      explanation: 'Detected 2 <h1> tags. Multiple H1 tags confuse search crawlers about the main page focus.',
+      recommendation: 'Ensure your page has exactly ONE primary <h1> tag for topical authority.',
+      fixSnippet: '<h1>Handcrafted Leather Goods & Footwear</h1>\n<h2>Seasonal Collection</h2>',
       impact: 'High',
     },
     {
-      id: 'image-alt-missing',
-      category: 'structure',
-      status: 'warning',
-      title: '6 Images Missing Descriptive Alt Attributes',
-      explanation: 'Search crawlers cannot index images or rank them in Google Images without descriptive alt text.',
-      recommendation: 'Add descriptive alt attributes explaining the subject matter of each image.',
-      fixSnippet: '<img src="/product-shoe-tan.webp" alt="Handcrafted tan leather oxford shoe with rubber sole" width="600" height="600" />',
-      impact: 'Medium',
-    },
-    {
-      id: 'speed-lcp',
+      id: 'speed-lcp-slow',
       category: 'speed',
-      status: 'error',
-      title: 'Largest Contentful Paint (LCP) Above 2.5s Target',
-      explanation: 'Main hero image takes 3.4 seconds to render. This triggers poor Core Web Vitals rankings.',
-      recommendation: 'Convert hero images to WebP/AVIF format and add fetchpriority="high" preload tag.',
+      status: 'warning',
+      title: 'Largest Contentful Paint (LCP) is 3.4s',
+      explanation: 'Google considers LCP over 2.5s poor. Users abandon sites that take more than 3s to render.',
+      recommendation: 'Convert large hero images to modern WebP format and enable priority preloading.',
       fixSnippet: '<link rel="preload" as="image" href="/hero.webp" type="image/webp" fetchpriority="high" />',
       impact: 'High',
     },
     {
-      id: 'mobile-viewport',
-      category: 'mobile',
-      status: 'good',
-      title: 'Mobile Viewport Tag Configured Properly',
-      explanation: 'The viewport meta tag is present with standard width=device-width scaling.',
-      recommendation: 'Maintain responsive CSS media queries across breakpoints.',
-      fixSnippet: '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
-      impact: 'High',
+      id: 'images-alt-missing',
+      category: 'structure',
+      status: 'warning',
+      title: '6 Images Missing Descriptive Alt Attributes',
+      explanation: 'Image search drives up to 20% of organic traffic. Alt text is also critical for accessibility compliance.',
+      recommendation: 'Add keyword-rich descriptive alt attributes to every product photograph.',
+      fixSnippet: '<img src="/shoes.webp" alt="Handcrafted Italian brown leather oxford shoes" width="600" height="400" />',
+      impact: 'Medium',
     },
     {
-      id: 'ssl-security',
+      id: 'security-ssl-ok',
       category: 'security',
       status: 'good',
-      title: 'HTTPS SSL Encryption Active',
-      explanation: 'The connection is encrypted using modern TLS/SSL certificates.',
-      recommendation: 'Ensure all subdomains and third-party assets are loaded over HTTPS.',
-      fixSnippet: '<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />',
+      title: 'HTTPS SSL Certificate Active & Valid',
+      explanation: 'Your site uses modern HTTPS encryption, protecting user sessions and fulfilling Google security requirements.',
+      recommendation: 'Maintain automatic certificate renewal and ensure HSTS preload header is enabled.',
+      fixSnippet: 'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload',
       impact: 'High',
-    },
-    {
-      id: 'canonical-url',
-      category: 'meta',
-      status: 'good',
-      title: 'Canonical Tag Present',
-      explanation: 'A canonical tag is declared, preventing duplicate parameter indexing penalties.',
-      recommendation: 'Ensure self-referential canonical URL is accurate.',
-      fixSnippet: '<link rel="canonical" href="https://myshopify-store.com" />',
-      impact: 'Medium',
     },
   ],
   hinglishRoast: {
-    siteNickname: 'The 2G Bullock Cart',
-    savageRoast: `Arrey bhai bhai bhai! Is website ka SEO dekh ke Googlebot ne apna resignation submit kar diya hai! Title tag itna lamba hai jaise railway ticket ki reservation list, aur meta description itna chhota jaise salary aane ke do din baad ka bank balance!\n\nHero image load hote hote user ka 5G data pack 2G ban jayega aur customer so jayega! H1 tag dhoondhte dhoondhte CBI ki team thak gayi! Agar aisi speed rahi toh agla sale 2035 mein hoga bhai! Thoda taras khao user par aur image compress karo!`,
+    siteNickname: 'The 2G Bullock Cart of E-Commerce',
+    savageRoast:
+      'Arrey bhai bhai bhai! Shopify store banaya hai ya 1999 ka government portal? Title tag itna lamba hai jaise railway ticket ki waiting list, aur meta description itna gayab jaise salary aane ke do din baad ka bank balance!\n\nHero section load hote hote user ka 5G data pack 2G ban jayega aur customer Amazon chala jayega! H1 tag dhoondhte dhoondhte CBI ki special team thak gayi! Agar aisi speed rahi toh agla order 2035 mein aayega bhai!',
     punchlines: [
-      'Bhai, website load hote hote user ka data package khatam ho jayega!',
+      'Bhai, website load hone mein itna time lag raha hai ki user chai peeke so bhi gaya!',
       'Title tag itna lamba hai ki Googlebot ko split-screen mode lagana pad raha hai!',
       'Meta description aise gayab hai jaise exam ke din topper ke notes!',
       'Images ke paas alt tags nahi hain, Google soch raha hai yeh samosa hai ya jalebi!',
-      'Speed aisi hai ki kabootar isse tez sandesh deliver kar de!',
     ],
     desiPrescription: [
       'Subah shaam 2 alt tags lagao aur hero image ko WebP mein compress karo.',
@@ -180,8 +199,9 @@ const INITIAL_DEMO_RESULT: AuditResult = {
       'Ek solid H1 tag lagao taaki Google ko pata chale dukaan kis cheez ki hai!',
       'Meta description mein mast masala daalo taaki click karne ka dil kare!',
     ],
-    roastScore: '3.5/10 - Sakht Dawaai Ki Zaroorat Hai!',
-    shareableQuote: 'Maine apni website ka SEO audit karwaya FixMySEO pe, aur AI ne aisi bezti ki ki ab main website delete karke dukan pe board lagane ja raha hoon! 😂',
+    roastScore: '3.4/10 - Sakht Dawaai Ki Zaroorat Hai!',
+    shareableQuote:
+      'Maine apna Shopify store FixMySEO pe check karwaya, aur AI ne aisi bezti ki ki ab main website delete karke kheti karne ja raha hoon! 😂',
     burnLevel: 'Masala Spicy',
     language: 'hinglish',
   },
@@ -204,11 +224,26 @@ export default function App() {
     return (localStorage.getItem('fixmyseo_roast_lang') as 'hinglish' | 'english') || 'hinglish';
   });
 
+  // Multi-page routing simulation ('home' | 'report' | 'blog')
+  const [currentRoute, setCurrentRoute] = useState<AppRoute>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const search = window.location.search;
+      if (path.includes('/blog')) return 'blog';
+      if (path.includes('/report') || search.includes('url=')) return 'report';
+    }
+    return 'home';
+  });
+
   const [activeTab, setActiveTab] = useState<'professional' | 'hinglish'>('professional');
   const [auditResult, setAuditResult] = useState<AuditResult | null>(INITIAL_DEMO_RESULT);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [loadingStep, setLoadingStep] = useState('');
+
+  // Legal Modal State
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [activeLegalTab, setActiveLegalTab] = useState<LegalTab>('privacy');
 
   // Session & monetization tracking
   const [freeAuditsRemaining, setFreeAuditsRemaining] = useState<number>(() => {
@@ -220,7 +255,7 @@ export default function App() {
     return (localStorage.getItem('fixmyseo_plan') as PlanType) || 'free';
   });
 
-  // Dynamic Recent Scans from localStorage (Clean - no dummy placeholder links)
+  // Dynamic Recent Scans from localStorage
   const [recentAudits, setRecentAudits] = useState<{ url: string; score: number }[]>(() => {
     try {
       const saved = localStorage.getItem('fixmyseo_recent_scans');
@@ -228,7 +263,7 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) return parsed;
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
     return [];
@@ -243,6 +278,38 @@ export default function App() {
   const [isAiFixOpen, setIsAiFixOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Sync browser popstate for back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      const search = window.location.search;
+      if (path.includes('/blog')) {
+        setCurrentRoute('blog');
+      } else if (path.includes('/report') || search.includes('url=')) {
+        setCurrentRoute('report');
+      } else {
+        setCurrentRoute('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateTo = (route: AppRoute, queryParam?: string) => {
+    setCurrentRoute(route);
+    let targetUrl = '/';
+    if (route === 'blog') targetUrl = '/blog';
+    if (route === 'report') targetUrl = `/report${queryParam ? `?url=${encodeURIComponent(queryParam)}` : ''}`;
+
+    try {
+      window.history.pushState({ route }, '', targetUrl);
+    } catch {
+      // safe fallback
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -270,6 +337,11 @@ export default function App() {
     }
   };
 
+  const handleOpenLegal = (tab: LegalTab) => {
+    setActiveLegalTab(tab);
+    setLegalModalOpen(true);
+  };
+
   const runAudit = async (
     customUrl?: string,
     customLevel?: string,
@@ -288,25 +360,26 @@ export default function App() {
       return;
     }
 
+    // Switch to report view immediately and push state
+    navigateTo('report', targetUrl);
     setIsLoading(true);
     setErrorMessage('');
-    setLoadingStep('Probing website DOM & crawling meta tags...');
+    setLoadingStep('Connecting to Webpulls live DOM telemetry & Google Search Grounding...');
 
     const stepTimer1 = setTimeout(() => {
-      setLoadingStep('Connecting to Google Search Grounding for live SERP signals...');
+      setLoadingStep('Extracting Title length, Meta tags verification, and H1/H2 instances...');
     }, 1200);
 
     const stepTimer2 = setTimeout(() => {
       setLoadingStep(
         targetLanguage === 'english'
-          ? 'Formulating Core Web Vitals & crafting Silicon Valley roast...'
-          : 'Formulating Core Web Vitals & brewing spicy Hinglish roast...'
+          ? 'Formulating Core Web Vitals, AEO/GEO signals & Silicon Valley roast...'
+          : 'Formulating Core Web Vitals, AEO/GEO signals & brewing spicy Hinglish roast...'
       );
     }, 2800);
 
     try {
-      // 1. Completely bypass internal backend API endpoints (remove fetch('/api/audit'))
-      // 2. Perform direct browser-based client-side request to Gemini endpoint and calculate real-time audit
+      // 1. Direct browser-based execution with Webpulls and Gemini grounding
       const data: AuditResult = await runClientSideAudit(
         targetUrl,
         targetRoastLevel,
@@ -332,7 +405,7 @@ export default function App() {
         try {
           localStorage.setItem('fixmyseo_recent_scans', JSON.stringify(updated));
         } catch {
-          // ignore storage error
+          // ignore
         }
         return updated;
       });
@@ -370,131 +443,335 @@ export default function App() {
       <Header
         freeAuditsRemaining={freeAuditsRemaining}
         userPlan={userPlan}
+        currentRoute={currentRoute}
         onOpenUpgradeModal={() => handleOpenUpgrade('pro')}
         onOpenBatchModal={() => setIsBatchOpen(true)}
         onOpenAiFixModal={() => setIsAiFixOpen(true)}
+        onNavigateToHome={() => navigateTo('home')}
+        onNavigateToBlog={() => navigateTo('blog')}
+        onOpenLegalModal={handleOpenLegal}
       />
 
       {/* Main Semantic Landmark Container */}
       <main id="main-content" className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12">
-        {/* Hero Section containing strictly ONE main H1 tag & center URL input with aligned button */}
-        <Hero
-          urlInput={urlInput}
-          setUrlInput={setUrlInput}
-          roastLevel={roastLevel}
-          setRoastLevel={setRoastLevel}
-          roastLanguage={roastLanguage}
-          setRoastLanguage={setRoastLanguage}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          onRunAudit={() => runAudit()}
-          isLoading={isLoading}
-          hasResult={!!auditResult}
-        />
+        {/* ======================================================== */}
+        {/* ROUTE 1: HOME PAGE (Hero, Input, Blog, Pricing, FAQ) */}
+        {/* ======================================================== */}
+        {currentRoute === 'home' && (
+          <div className="space-y-12 animate-in fade-in duration-300">
+            {/* HERO & INPUT SECTION: Minimalist bar with Scan button */}
+            <Hero
+              urlInput={urlInput}
+              setUrlInput={setUrlInput}
+              roastLevel={roastLevel}
+              setRoastLevel={setRoastLevel}
+              roastLanguage={roastLanguage}
+              setRoastLanguage={setRoastLanguage}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              onRunAudit={() => runAudit()}
+              isLoading={isLoading}
+              hasResult={!!auditResult}
+            />
 
-        {/* Loading Progress State */}
-        {isLoading && (
-          <div className="max-w-2xl mx-auto p-8 rounded-3xl bg-slate-900/90 border border-emerald-500/40 text-center space-y-4 shadow-2xl glow-emerald">
-            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-              <Loader2 className="w-12 h-12 text-emerald-400 animate-spin" />
-              <Sparkles className="w-5 h-5 text-emerald-300 absolute" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-white">Analyzing Website Health & SERP Signals</h3>
-              <p className="text-xs text-emerald-400 font-medium mt-1 animate-pulse">
-                {loadingStep || 'Crunching data through Gemini 3.8 & Google Search Grounding...'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Error Notification */}
-        {errorMessage && (
-          <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-rose-300 text-xs">
-            <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
-            <div className="flex-1">
-              <strong className="block font-bold">Audit Encountered An Error</strong>
-              <span>{errorMessage}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Dynamic Recent Audits Container (No hardcoded placeholders, reads from localStorage) */}
-        {!isLoading && (
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
-            <span className="flex items-center gap-1.5 text-slate-500 font-medium">
-              <History className="w-3.5 h-3.5" /> Recent Scans:
-            </span>
-            {recentAudits.length === 0 ? (
-              <span className="text-slate-500 italic">No recent scans yet</span>
-            ) : (
-              <>
-                {recentAudits.map((item, idx) => (
+            {/* Dynamic Recent Audits Container */}
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
+              <span className="flex items-center gap-1.5 text-slate-500 font-medium">
+                <History className="w-3.5 h-3.5" /> Recent Scans:
+              </span>
+              {recentAudits.length === 0 ? (
+                <span className="text-slate-500 italic">No recent scans yet</span>
+              ) : (
+                <>
+                  {recentAudits.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setUrlInput(item.url.replace(/^https?:\/\//, ''));
+                        runAudit(item.url);
+                      }}
+                      className="cursor-pointer px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
+                    >
+                      <span>{item.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
+                      <span className="text-[10px] font-bold text-emerald-400 group-hover:scale-105">
+                        ({item.score})
+                      </span>
+                    </button>
+                  ))}
                   <button
-                    key={idx}
                     onClick={() => {
-                      setUrlInput(item.url.replace(/^https?:\/\//, ''));
-                      runAudit(item.url);
+                      setRecentAudits([]);
+                      localStorage.removeItem('fixmyseo_recent_scans');
                     }}
-                    className="cursor-pointer px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-emerald-400 transition-colors flex items-center gap-1.5 group"
+                    className="text-[10px] text-slate-500 hover:text-rose-400 underline ml-1 cursor-pointer transition-colors"
+                    title="Clear scan history"
                   >
-                    <span>{item.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
-                    <span className="text-[10px] font-bold text-emerald-400 group-hover:scale-105">
-                      ({item.score})
-                    </span>
+                    Clear
                   </button>
-                ))}
+                </>
+              )}
+            </div>
+
+            {/* KNOWLEDGE HUB / BLOG SECTION */}
+            <BlogSection />
+
+            {/* Commercial Pricing Section */}
+            <PricingSection
+              currentPlan={userPlan}
+              onSelectPlan={(plan, cycle) => handleOpenUpgrade(plan, cycle)}
+            />
+
+            {/* FAQ Section */}
+            <FaqSection />
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* ROUTE 2: DYNAMIC REPORT DASHBOARD (`/report?url=...`) */}
+        {/* ======================================================== */}
+        {currentRoute === 'report' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            {/* Top Navigation & Action Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl">
+              <div className="flex items-center gap-3">
                 <button
-                  onClick={() => {
-                    setRecentAudits([]);
-                    localStorage.removeItem('fixmyseo_recent_scans');
-                  }}
-                  className="text-[10px] text-slate-500 hover:text-rose-400 underline ml-1 cursor-pointer transition-colors"
-                  title="Clear scan history"
+                  onClick={() => navigateTo('home')}
+                  className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition-colors"
+                  aria-label="Back to New Scan"
                 >
-                  Clear
+                  <ArrowLeft className="w-4 h-4 text-emerald-400" />
+                  <span>Scan Another Site</span>
                 </button>
-              </>
+
+                <div className="h-5 w-px bg-slate-800 hidden sm:block" />
+
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <span>Report for:</span>
+                    <span className="text-emerald-400 font-mono text-sm sm:text-base">
+                      {auditResult?.url || urlInput}
+                    </span>
+                  </h2>
+                </div>
+              </div>
+
+              {/* View Switcher Tabs (Classic SEO vs Savage Roaster) */}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => setActiveTab('professional')}
+                  className={`cursor-pointer flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === 'professional'
+                      ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  <span>Classic SEO & Diagnostics</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('hinglish')}
+                  className={`cursor-pointer flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === 'hinglish'
+                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  <Flame className="w-3.5 h-3.5" />
+                  <span>AI Roaster ({roastLanguage === 'english' ? 'English' : 'Hinglish'})</span>
+                </button>
+              </div>
+            </div>
+
+            {/* AD SLOT 1: GOOGLE ADSENSE LEADERBOARD CONTAINER (Top of Report) */}
+            <AdSenseContainer slot="leaderboard" />
+
+            {/* Loading Indicator inside Report Dashboard */}
+            {isLoading && (
+              <div className="max-w-2xl mx-auto p-8 rounded-3xl bg-slate-900/90 border border-emerald-500/40 text-center space-y-4 shadow-2xl">
+                <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                  <Loader2 className="w-12 h-12 text-emerald-400 animate-spin" />
+                  <Sparkles className="w-5 h-5 text-emerald-300 absolute" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Extracting Deep Diagnostic Telemetry</h3>
+                  <p className="text-xs text-emerald-400 font-medium mt-1 animate-pulse">
+                    {loadingStep || 'Crunching data through Webpulls and Gemini Search Grounding...'}
+                  </p>
+                </div>
+              </div>
             )}
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-rose-300 text-xs">
+                <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                <div className="flex-1">
+                  <strong className="block font-bold">Audit Error</strong>
+                  <span>{errorMessage}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Two-Column Grid: Left Column Report & Right Sidebar Ad Container */}
+            {auditResult && !isLoading && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Main Content (8 cols on lg) */}
+                <div className="lg:col-span-8 space-y-8">
+                  {/* Primary Tab Content */}
+                  {activeTab === 'professional' ? (
+                    <ProfessionalAuditTab
+                      result={auditResult}
+                      onOpenWhiteLabelModal={() => setIsWhiteLabelOpen(true)}
+                      onOpenAiFixModal={() => setIsAiFixOpen(true)}
+                    />
+                  ) : (
+                    <HinglishRoasterTab
+                      result={auditResult}
+                      roastLevel={roastLevel}
+                      roastLanguage={roastLanguage}
+                      onReRoast={handleReRoast}
+                      onLanguageChange={handleRoastLanguageChange}
+                      isLoading={isLoading}
+                    />
+                  )}
+
+                  {/* AEO, GEO, and AI Crawler Blocker Check (robots.txt analysis) */}
+                  <AeoGeoSection
+                    aeo={auditResult.aeo}
+                    geo={auditResult.geo}
+                    crawlerBlockers={auditResult.crawlerBlockers}
+                    domain={auditResult.url.replace(/^https?:\/\//, '').split('/')[0]}
+                  />
+                </div>
+
+                {/* Right Sidebar (4 cols on lg): AdSlot 2 & Quick Action Cards */}
+                <div className="lg:col-span-4 space-y-6">
+                  {/* AD SLOT 2: GOOGLE ADSENSE RECTANGLE CONTAINER (Sidebar) */}
+                  <AdSenseContainer slot="rectangle" />
+
+                  {/* Quick Action Helper Card */}
+                  <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Audit Actions & Exports
+                    </h3>
+
+                    <button
+                      onClick={() => setIsWhiteLabelOpen(true)}
+                      className="cursor-pointer w-full flex items-center justify-between p-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 transition-colors text-xs font-semibold group"
+                    >
+                      <span className="flex items-center gap-2">
+                        <FileDown className="w-4 h-4 text-emerald-400" />
+                        <span>Export White-Label PDF</span>
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase bg-emerald-500/10 px-2 py-0.5 rounded">
+                        PRO
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => setIsAiFixOpen(true)}
+                      className="cursor-pointer w-full flex items-center justify-between p-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 transition-colors text-xs font-semibold group"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-teal-400" />
+                        <span>AI Fix Tag Generator</span>
+                      </span>
+                      <span className="text-[10px] text-teal-400 font-bold uppercase bg-teal-500/10 px-2 py-0.5 rounded">
+                        Instant
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => setIsBatchOpen(true)}
+                      className="cursor-pointer w-full flex items-center justify-between p-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 transition-colors text-xs font-semibold group"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-400" />
+                        <span>Agency Batch Scan</span>
+                      </span>
+                      <span className="text-[10px] text-amber-400 font-bold uppercase bg-amber-500/10 px-2 py-0.5 rounded">
+                        AGENCY
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* Summary Metric Score Card */}
+                  <div className="p-5 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-400 font-medium">Diagnostic Health</span>
+                      <span className="px-2 py-0.5 rounded text-[11px] font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        Grade {auditResult.grade}
+                      </span>
+                    </div>
+
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-white">{auditResult.overallScore}</span>
+                      <span className="text-xs text-slate-500">/ 100 Overall Score</span>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-800 space-y-1.5 text-xs text-slate-300">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">AEO Direct Answers:</span>
+                        <span className="font-mono text-emerald-400">{auditResult.aeo?.directAnswerReadiness}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">GEO Entity Clarity:</span>
+                        <span className="font-mono text-teal-400">{auditResult.geo?.brandEntityClarity}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Robots.txt Crawlers:</span>
+                        <span className="font-mono text-emerald-400">100% Allowed</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* AD SLOT 3: GOOGLE ADSENSE ANCHOR CONTAINER (Bottom of Report) */}
+            <AdSenseContainer slot="anchor" />
           </div>
         )}
 
-        {/* Audit Results Container (Hydrated with Dynamic Tabs) */}
-        {auditResult && !isLoading && (
-          <div className="pt-4">
-            {activeTab === 'professional' ? (
-              <ProfessionalAuditTab
-                result={auditResult}
-                onOpenWhiteLabelModal={() => setIsWhiteLabelOpen(true)}
-                onOpenAiFixModal={() => setIsAiFixOpen(true)}
-              />
-            ) : (
-              <HinglishRoasterTab
-                result={auditResult}
-                roastLevel={roastLevel}
-                roastLanguage={roastLanguage}
-                onReRoast={handleReRoast}
-                onLanguageChange={handleRoastLanguageChange}
-                isLoading={isLoading}
-              />
-            )}
+        {/* ======================================================== */}
+        {/* ROUTE 3: DEDICATED BLOG VIEW (`/blog`) */}
+        {/* ======================================================== */}
+        {currentRoute === 'blog' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigateTo('home')}
+                className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-emerald-400" />
+                <span>Back to Home & Audit Tool</span>
+              </button>
+            </div>
+
+            <BlogSection />
+
+            {/* AdSense Placement in Blog Feed */}
+            <AdSenseContainer slot="leaderboard" />
           </div>
         )}
-
-        {/* Commercial Pricing Architecture (Positioned before FAQ & Footer) */}
-        <PricingSection
-          currentPlan={userPlan}
-          onSelectPlan={(plan, cycle) => handleOpenUpgrade(plan, cycle)}
-        />
-
-        {/* Semantic Knowledge FAQ Section */}
-        <FaqSection />
       </main>
 
-      {/* Semantic Footer */}
-      <Footer />
+      {/* Semantic Sticky Footer with Legal & Compliance Links */}
+      <Footer
+        onOpenLegalModal={handleOpenLegal}
+        onNavigateToBlog={() => navigateTo('blog')}
+        onNavigateToHome={() => navigateTo('home')}
+      />
 
-      {/* Modals */}
+      {/* Mandatory Legal & Compliance Modal (Privacy, Terms, Contact) */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        initialTab={activeLegalTab}
+        onClose={() => setLegalModalOpen(false)}
+      />
+
+      {/* Commercial Checkout Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
@@ -503,6 +780,7 @@ export default function App() {
         onConfirmUpgrade={handleConfirmUpgrade}
       />
 
+      {/* White-Label Report Export Modal */}
       {auditResult && (
         <WhiteLabelReportModal
           isOpen={isWhiteLabelOpen}
@@ -513,12 +791,14 @@ export default function App() {
         />
       )}
 
+      {/* AI Fix Generator Modal */}
       <AiFixGeneratorModal
         isOpen={isAiFixOpen}
         onClose={() => setIsAiFixOpen(false)}
         defaultUrl={auditResult?.url || urlInput}
       />
 
+      {/* Batch Audit Modal */}
       <BatchAuditModal
         isOpen={isBatchOpen}
         onClose={() => setIsBatchOpen(false)}

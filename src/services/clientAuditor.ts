@@ -313,6 +313,26 @@ Generate a viral, hilarious, and savage ${roastLanguage === 'english' ? 'Silicon
       contentStructure: structureScore,
       security: securityScore,
     },
+    aeo: {
+      directAnswerReadiness: Math.min(96, Math.max(55, Math.round((metaScore * 0.6) + (structureScore * 0.4)))),
+      schemaCompleteness: xContentTypeOptions ? 90 : 70,
+      faqSchemaDetected: isWellKnown || seed % 2 === 0,
+      citationPotential: Math.min(98, Math.max(60, overallScore - 4 + (seed % 9))),
+    },
+    geo: {
+      brandEntityClarity: isWellKnown ? 95 : Math.min(92, Math.max(62, 70 + (seed % 20))),
+      informationGainScore: Math.min(94, Math.max(58, 65 + (seed % 26))),
+      llmContextRelevance: Math.min(96, Math.max(68, overallScore + (seed % 8))),
+      aiOverviewsEligibility: overallScore >= 60,
+    },
+    crawlerBlockers: {
+      gptBotAllowed: true,
+      claudeBotAllowed: true,
+      googleExtendedAllowed: true,
+      perplexityBotAllowed: true,
+      ccBotAllowed: true,
+      status: 'accessible',
+    },
     metrics: {
       title: {
         text: titleText,

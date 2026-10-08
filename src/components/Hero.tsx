@@ -162,11 +162,11 @@ export const Hero: React.FC<HeroProps> = ({
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Auditing...</span>
+                  <span>Scanning...</span>
                 </>
               ) : (
                 <>
-                  <span>Run Instant Audit</span>
+                  <span>Scan</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </>
               )}
