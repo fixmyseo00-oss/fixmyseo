@@ -578,7 +578,7 @@ export default function App() {
                   }`}
                 >
                   <Flame className="w-3.5 h-3.5" />
-                  <span>AI Roaster ({roastLanguage === 'english' ? 'English' : 'Hinglish'})</span>
+                  <span>AI Roaster ({roastLanguage === 'english' ? 'English' : 'Hindi'})</span>
                 </button>
               </div>
             </div>

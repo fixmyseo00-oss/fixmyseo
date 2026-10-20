@@ -130,7 +130,7 @@ export const Hero: React.FC<HeroProps> = ({
                 className="h-11 bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700 rounded-xl px-2.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
                 title="Select Roast Language Style"
               >
-                <option value="hinglish">🔥 Hinglish</option>
+                <option value="hinglish">🔥 Hindi</option>
                 <option value="english">🌍 English</option>
               </select>
             </div>
@@ -236,7 +236,7 @@ export const Hero: React.FC<HeroProps> = ({
             }`}
           >
             <Flame className="w-4 h-4 text-amber-400" />
-            <span>{roastLanguage === 'english' ? 'Tech AI Roaster' : 'Hinglish AI Roaster'}</span>
+            <span>{roastLanguage === 'english' ? 'Tech AI Roaster' : 'Hindi AI Roaster'}</span>
             <span className="text-[10px] bg-black/40 px-1.5 py-0.5 rounded font-black tracking-wider uppercase">
               {roastLanguage === 'english' ? 'Global' : 'Viral 🔥'}
             </span>

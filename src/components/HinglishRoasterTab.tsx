@@ -46,7 +46,7 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
   }, []);
 
   const handleCopyRoast = () => {
-    const textToCopy = `🔥 FixMySEO ${isEnglish ? 'Tech' : 'Hinglish'} Roast for ${result.url}:\n\n"${roast.siteNickname}"\n\n${roast.savageRoast}\n\n👉 Punchline: "${roast.punchlines[0]}"\n\nPrescription: ${roast.desiPrescription[0]}\n\nAudited on FixMySEO (Score: ${result.overallScore}/100)`;
+    const textToCopy = `🔥 FixMySEO ${isEnglish ? 'Tech' : 'Hindi'} Roast for ${result.url}:\n\n"${roast.siteNickname}"\n\n${roast.savageRoast}\n\n👉 Punchline: "${roast.punchlines[0]}"\n\nPrescription: ${roast.desiPrescription[0]}\n\nAudited on FixMySEO (Score: ${result.overallScore}/100)`;
     navigator.clipboard.writeText(textToCopy);
     setCopiedRoast(true);
     setTimeout(() => setCopiedRoast(false), 2500);
@@ -54,14 +54,14 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
 
   const handleShareTwitter = () => {
     const text = encodeURIComponent(
-      `FixMySEO just roasted ${result.url} in ${isEnglish ? 'savage tech English' : 'brutal Hinglish'}! 😂\n\n"${roast.siteNickname}"\n\n"${roast.punchlines[0]}"\n\nCheck yours: https://fixmyseo.ai`
+      `FixMySEO just roasted ${result.url} in ${isEnglish ? 'savage tech English' : 'brutal Hindi'}! 😂\n\n"${roast.siteNickname}"\n\n"${roast.punchlines[0]}"\n\nCheck yours: https://fixmyseo.ai`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   };
 
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(
-      `Check out this ${isEnglish ? 'savage tech' : 'Hinglish'} roast of ${result.url} on FixMySEO 😂:\n\n"${roast.siteNickname}"\n\n"${roast.punchlines[0]}"`
+      `Check out this ${isEnglish ? 'savage tech' : 'Hindi'} roast of ${result.url} on FixMySEO 😂:\n\n"${roast.siteNickname}"\n\n"${roast.punchlines[0]}"`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
@@ -93,9 +93,9 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
 
     // Pick most natural voice based on language
     const voices = window.speechSynthesis.getVoices();
-    if (voices && voices.length > 0) {
-      if (isEnglish) {
-        // Find natural conversational English voice
+    if (isEnglish) {
+      // Find natural conversational English voice (kept exactly as is)
+      if (voices && voices.length > 0) {
         const englishVoice =
           voices.find(
             (v) =>
@@ -103,15 +103,79 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
               (v.lang.startsWith('en-US') || v.lang.startsWith('en-GB') || v.lang.startsWith('en'))
           ) || voices.find((v) => v.lang.startsWith('en'));
         if (englishVoice) utterance.voice = englishVoice;
-      } else {
-        // Find natural Hindi or Indian English voice
-        const desiVoice =
-          voices.find(
-            (v) =>
-              (v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('India') || v.name.includes('Rishi')) &&
-              (v.name.includes('Google') || v.name.includes('Natural') || true)
-          ) || voices.find((v) => v.lang.startsWith('hi') || v.lang.startsWith('en-IN'));
-        if (desiVoice) utterance.voice = desiVoice;
+      }
+    } else {
+      // Hindi mode: set language to hi-IN
+      utterance.lang = 'hi-IN';
+
+      if (voices && voices.length > 0) {
+        // Native female Hindi/Urdu voice keywords across Google, Microsoft, Apple & Android systems
+        const femaleDesiKeywords = [
+          'swara',
+          'heera',
+          'lekha',
+          'veena',
+          'neerja',
+          'sangeeta',
+          'gul',
+          'kavya',
+          'pooja',
+          'aditi',
+          'kalpana',
+          'female',
+        ];
+
+        // 1. Explicit native female Hindi/Urdu voice
+        const nativeFemaleHindiVoice =
+          voices.find((v) => {
+            const lang = (v.lang || '').toLowerCase().replace('_', '-');
+            const name = (v.name || '').toLowerCase();
+            const isHindiOrUrdu =
+              lang.startsWith('hi') || lang === 'hi-in' || lang.startsWith('ur');
+            const isFemale = femaleDesiKeywords.some((k) => name.includes(k));
+            return isHindiOrUrdu && isFemale;
+          }) ||
+          // 2. Google हिन्दी / Google hi-IN (default native female neural voice in Chrome & Android)
+          voices.find((v) => {
+            const name = (v.name || '').toLowerCase();
+            const lang = (v.lang || '').toLowerCase().replace('_', '-');
+            return (
+              (lang.startsWith('hi') || lang === 'hi-in') &&
+              (name.includes('google') || name.includes('हिन्दी') || name.includes('natural'))
+            );
+          }) ||
+          // 3. Any Hindi voice excluding known male names
+          voices.find((v) => {
+            const lang = (v.lang || '').toLowerCase().replace('_', '-');
+            const name = (v.name || '').toLowerCase();
+            const isHindi = lang.startsWith('hi') || lang === 'hi-in';
+            const isKnownMale = ['rishi', 'madhav', 'hemant', 'male'].some((m) => name.includes(m));
+            return isHindi && !isKnownMale;
+          }) ||
+          // 4. Any native Hindi voice
+          voices.find((v) => {
+            const lang = (v.lang || '').toLowerCase().replace('_', '-');
+            return lang.startsWith('hi') || lang === 'hi-in';
+          }) ||
+          // 5. Any native Urdu voice (e.g. Gul, Urdu India/Pakistan)
+          voices.find((v) => {
+            const lang = (v.lang || '').toLowerCase().replace('_', '-');
+            return lang.startsWith('ur');
+          }) ||
+          // 6. Fallback: Indian English female voice (Veena/Heera/Aditi) if Hindi language pack is absent on user OS
+          voices.find((v) => {
+            const lang = (v.lang || '').toLowerCase().replace('_', '-');
+            const name = (v.name || '').toLowerCase();
+            return (
+              lang === 'en-in' &&
+              (femaleDesiKeywords.some((k) => name.includes(k)) || name.includes('india'))
+            );
+          }) ||
+          voices.find((v) => (v.lang || '').toLowerCase().includes('in'));
+
+        if (nativeFemaleHindiVoice) {
+          utterance.voice = nativeFemaleHindiVoice;
+        }
       }
     }
 
@@ -139,7 +203,7 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-wider mb-2 border border-amber-500/40">
               <Flame className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               <span>
-                {isEnglish ? 'Tech Industry Roast' : 'Hinglish AI Roast'} • {roastLevel}
+                {isEnglish ? 'Tech Industry Roast' : 'Hindi AI Roast'} • {roastLevel}
               </span>
             </div>
 
@@ -215,7 +279,7 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                🔥 Hinglish (Desi Burn)
+                🔥 Hindi (Desi Burn)
               </button>
               <button
                 type="button"
