@@ -8,6 +8,7 @@ interface BatchAuditModalProps {
   userPlan: PlanType;
   onOpenUpgradeModal: () => void;
   onSelectUrlForAudit: (url: string) => void;
+  onLockedAgencyFeature?: () => void;
 }
 
 interface BatchItemResult {
@@ -25,6 +26,7 @@ export const BatchAuditModal: React.FC<BatchAuditModalProps> = ({
   userPlan,
   onOpenUpgradeModal,
   onSelectUrlForAudit,
+  onLockedAgencyFeature,
 }) => {
   const [urlsText, setUrlsText] = useState(
     'https://stripe.com\nhttps://shopify.com\nhttps://producthunt.com'
@@ -38,7 +40,11 @@ export const BatchAuditModal: React.FC<BatchAuditModalProps> = ({
 
   const handleStartBatch = () => {
     if (!isAgency) {
-      onOpenUpgradeModal();
+      if (onLockedAgencyFeature) {
+        onLockedAgencyFeature();
+      } else {
+        onOpenUpgradeModal();
+      }
       return;
     }
 
@@ -127,7 +133,7 @@ export const BatchAuditModal: React.FC<BatchAuditModalProps> = ({
               <span>Bulk batch auditing is unlocked on the <strong>Agency Automation Plan</strong> ($19/mo).</span>
             </div>
             <button
-              onClick={onOpenUpgradeModal}
+              onClick={onLockedAgencyFeature || onOpenUpgradeModal}
               className="cursor-pointer px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold uppercase tracking-wider shrink-0 transition-colors"
             >
               Unlock Agency Tier

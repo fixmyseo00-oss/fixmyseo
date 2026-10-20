@@ -102,18 +102,20 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls & Plan Status */}
         <div className="flex items-center gap-3">
-          {/* Free Tier Pass Counter */}
+          {/* Free Tier Pass Counter / Premium Active Indicator */}
           {userPlan === 'free' ? (
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>
-                <strong className="text-emerald-400">{freeAuditsRemaining}</strong> / 3 Passes
+                <strong className="text-emerald-400">{freeAuditsRemaining}</strong> / 3 Free Passes Left
               </span>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-semibold text-emerald-400">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-semibold text-emerald-400 shadow-sm shadow-emerald-500/10">
               <Crown className="w-3.5 h-3.5" />
-              <span className="uppercase tracking-wider">{userPlan} Plan Active</span>
+              <span className="uppercase tracking-wider font-bold">
+                {userPlan === 'agency' ? 'AGENCY PLAN ACTIVE' : 'STARTER PRO PLAN ACTIVE'}
+              </span>
             </div>
           )}
 

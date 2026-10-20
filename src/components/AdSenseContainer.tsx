@@ -2,11 +2,41 @@ import React from 'react';
 import { ShieldCheck, Info } from 'lucide-react';
 
 interface AdSenseContainerProps {
-  slot: 'leaderboard' | 'rectangle' | 'anchor';
+  slot: 'leaderboard' | 'rectangle' | 'anchor' | 'interstitial';
   className?: string;
 }
 
 export const AdSenseContainer: React.FC<AdSenseContainerProps> = ({ slot, className = '' }) => {
+  if (slot === 'interstitial') {
+    return (
+      <div
+        className={`w-full max-w-lg mx-auto my-4 p-4 rounded-2xl border border-dashed border-emerald-500/40 bg-slate-900/90 flex flex-col items-center justify-center text-center shadow-xl ${className}`}
+        aria-label="Google AdSense Loading Screen Interstitial Advertisement"
+      >
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-400 mb-2">
+          <span>Active Sponsor Space &bull; Google AdSense</span>
+          <Info className="w-3 h-3 text-slate-500" />
+        </div>
+        <div className="w-full h-[160px] rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-transparent pointer-events-none" />
+          <div className="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-2">
+            <span className="text-emerald-400 font-mono font-bold text-xs">AD</span>
+          </div>
+          <span className="text-xs font-semibold text-slate-200">
+            Loading Screen Interstitial Ad Space (Responsive)
+          </span>
+          <span className="text-[11px] text-slate-500 font-mono mt-0.5">
+            Google Publisher Tag &bull; High-Viewability Tier-1 Placement
+          </span>
+        </div>
+        <div className="mt-2 text-[10px] text-slate-500 flex items-center gap-1">
+          <ShieldCheck className="w-3 h-3 text-emerald-500" />
+          <span>Active Free Plan Ad Placement &bull; Better Ads Standards</span>
+        </div>
+      </div>
+    );
+  }
+
   if (slot === 'leaderboard') {
     return (
       <div

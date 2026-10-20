@@ -15,19 +15,24 @@ import {
   Sparkles,
   ArrowUpRight,
   Filter,
+  Lock,
 } from 'lucide-react';
-import { AuditResult, AuditStatus, AuditCategory, AuditItem } from '../types';
+import { AuditResult, AuditStatus, AuditCategory, AuditItem, PlanType } from '../types';
 
 interface ProfessionalAuditTabProps {
   result: AuditResult;
+  userPlan?: PlanType;
   onOpenWhiteLabelModal: () => void;
   onOpenAiFixModal: () => void;
+  onLockedFeatureClick?: (feature: string) => void;
 }
 
 export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
   result,
+  userPlan = 'free',
   onOpenWhiteLabelModal,
   onOpenAiFixModal,
+  onLockedFeatureClick,
 }) => {
   const [activeCategory, setActiveCategory] = useState<'all' | AuditCategory>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | AuditStatus>('all');
@@ -46,6 +51,9 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
     if (statusFilter !== 'all' && item.status !== statusFilter) return false;
     return true;
   });
+
+  // ENFORCE FREE PLAN LIMITS: Free users only get access to top 8 structural error inspections
+  const displayedItems = userPlan === 'free' ? filteredItems.slice(0, 8) : filteredItems;
 
   const criticalErrorsCount = result.auditItems.filter((i) => i.status === 'error').length;
   const warningsCount = result.auditItems.filter((i) => i.status === 'warning').length;
@@ -115,11 +123,18 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
             AI Fix Helper
           </button>
           <button
-            onClick={onOpenWhiteLabelModal}
+            onClick={() => {
+              if (userPlan === 'free') {
+                onLockedFeatureClick?.('White-Label PDF Export');
+              } else {
+                onOpenWhiteLabelModal();
+              }
+            }}
             className="cursor-pointer flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20"
+            title={userPlan === 'free' ? 'Locked on Free Plan - Click to Upgrade' : 'Export White-Label PDF Report'}
           >
-            <FileDown className="w-4 h-4" />
-            Export White-Label PDF
+            {userPlan === 'free' ? <Lock className="w-3.5 h-3.5" /> : <FileDown className="w-4 h-4" />}
+            <span>Export White-Label PDF</span>
           </button>
         </div>
       </div>
@@ -429,7 +444,7 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
               <FileCode2 className="w-5 h-5 text-emerald-400" />
               <span>Detailed Audit Checklist & Fixes</span>
               <span className="text-xs font-normal text-slate-400">
-                ({filteredItems.length} items shown)
+                ({displayedItems.length} items shown{userPlan === 'free' ? ' • Free Top 8 Limit' : ''})
               </span>
             </h3>
             <p className="text-xs text-slate-400">
@@ -493,7 +508,7 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
 
         {/* Structural Card List */}
         <div className="space-y-3">
-          {filteredItems.map((item) => {
+          {displayedItems.map((item) => {
             const isExpanded = expandedItemId === item.id;
             return (
               <div
@@ -566,6 +581,25 @@ export const ProfessionalAuditTab: React.FC<ProfessionalAuditTabProps> = ({
               </div>
             );
           })}
+
+          {/* Free Plan Limits Notice */}
+          {userPlan === 'free' && (
+            <div className="p-6 rounded-2xl bg-slate-900/90 border border-dashed border-emerald-500/30 text-center space-y-3 mt-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
+                <Lock className="w-5 h-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white">Free Plan Limit: Top 8 Structural Error Inspections</h4>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Free plan users receive the top 8 structural error inspections. Upgrade to Pro to unlock unlimited deep diagnostic checks, full code fix generator, and white-label export.
+              </p>
+              <button
+                onClick={() => onLockedFeatureClick?.('All Structural Inspections')}
+                className="cursor-pointer px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-emerald-500/20"
+              >
+                Upgrade to Pro to Unlock All Checks
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

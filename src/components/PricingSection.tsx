@@ -24,7 +24,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
         'Up to 3 quick site check passes per session',
         'Basic SEO health score & grade',
         'Top 8 structural error inspections',
-        'Hinglish AI Roaster preview',
+        'Hindi AI Roaster preview',
         'Google SERP Snippet Preview',
       ],
       cta: currentPlan === 'free' ? 'Current Free Plan' : 'Downgrade to Free',

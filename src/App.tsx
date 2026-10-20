@@ -12,6 +12,7 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { WhiteLabelReportModal } from './components/WhiteLabelReportModal';
 import { AiFixGeneratorModal } from './components/AiFixGeneratorModal';
 import { BatchAuditModal } from './components/BatchAuditModal';
+import { AgencyAlertModal } from './components/AgencyAlertModal';
 import { FaqSection } from './components/FaqSection';
 import { Footer } from './components/Footer';
 import { AuditResult, PlanType } from './types';
@@ -29,6 +30,7 @@ import {
   Flame,
   LayoutDashboard,
   Zap,
+  Lock,
 } from 'lucide-react';
 
 export type AppRoute = 'home' | 'report' | 'blog';
@@ -277,6 +279,7 @@ export default function App() {
   const [isWhiteLabelOpen, setIsWhiteLabelOpen] = useState(false);
   const [isAiFixOpen, setIsAiFixOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
+  const [isAgencyAlertOpen, setIsAgencyAlertOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Sync browser popstate for back/forward navigation
@@ -342,6 +345,25 @@ export default function App() {
     setLegalModalOpen(true);
   };
 
+  const handleLockedFeatureClick = (_featureName: string = 'This premium feature') => {
+    showToast('This premium feature is locked! Please upgrade your plan to unlock.');
+
+    if (currentRoute !== 'home') {
+      navigateTo('home');
+    }
+
+    setTimeout(() => {
+      const pricingEl = document.getElementById('pricing');
+      if (pricingEl) {
+        pricingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 150);
+  };
+
+  const handleAgencyLockedFeatureClick = () => {
+    setIsAgencyAlertOpen(true);
+  };
+
   const runAudit = async (
     customUrl?: string,
     customLevel?: string,
@@ -353,10 +375,10 @@ export default function App() {
 
     if (!targetUrl.trim()) return;
 
-    // Check free session limit
+    // Check free session limit (strictly 3 passes)
     if (userPlan === 'free' && freeAuditsRemaining <= 0) {
-      showToast('You have used all 3 free passes for this session. Please upgrade to Pro!');
-      handleOpenUpgrade('pro');
+      showToast('You have reached your 3 free quick site check passes limit! Please upgrade to a premium plan to get unlimited deep audits.');
+      handleLockedFeatureClick('Unlimited Deep Audits');
       return;
     }
 
@@ -445,7 +467,15 @@ export default function App() {
         userPlan={userPlan}
         currentRoute={currentRoute}
         onOpenUpgradeModal={() => handleOpenUpgrade('pro')}
-        onOpenBatchModal={() => setIsBatchOpen(true)}
+        onOpenBatchModal={() => {
+          if (userPlan === 'free') {
+            handleLockedFeatureClick('Agency Batch Scan');
+          } else if (userPlan === 'pro') {
+            handleAgencyLockedFeatureClick();
+          } else {
+            setIsBatchOpen(true);
+          }
+        }}
         onOpenAiFixModal={() => setIsAiFixOpen(true)}
         onNavigateToHome={() => navigateTo('home')}
         onNavigateToBlog={() => navigateTo('blog')}
@@ -472,6 +502,9 @@ export default function App() {
               onRunAudit={() => runAudit()}
               isLoading={isLoading}
               hasResult={!!auditResult}
+              userPlan={userPlan}
+              freeAuditsRemaining={freeAuditsRemaining}
+              onLockedFeatureClick={handleLockedFeatureClick}
             />
 
             {/* Dynamic Recent Audits Container */}
@@ -584,7 +617,7 @@ export default function App() {
             </div>
 
             {/* AD SLOT 1: GOOGLE ADSENSE LEADERBOARD CONTAINER (Top of Report) */}
-            <AdSenseContainer slot="leaderboard" />
+            {userPlan === 'free' && <AdSenseContainer slot="leaderboard" />}
 
             {/* Loading Indicator inside Report Dashboard */}
             {isLoading && (
@@ -599,6 +632,10 @@ export default function App() {
                     {loadingStep || 'Crunching data through Webpulls and Gemini Search Grounding...'}
                   </p>
                 </div>
+                {/* Free Plan Loading Screen Interstitial Ad Space */}
+                {userPlan === 'free' && (
+                  <AdSenseContainer slot="interstitial" className="mt-4" />
+                )}
               </div>
             )}
 
@@ -622,8 +659,10 @@ export default function App() {
                   {activeTab === 'professional' ? (
                     <ProfessionalAuditTab
                       result={auditResult}
+                      userPlan={userPlan}
                       onOpenWhiteLabelModal={() => setIsWhiteLabelOpen(true)}
                       onOpenAiFixModal={() => setIsAiFixOpen(true)}
+                      onLockedFeatureClick={handleLockedFeatureClick}
                     />
                   ) : (
                     <HinglishRoasterTab
@@ -648,7 +687,7 @@ export default function App() {
                 {/* Right Sidebar (4 cols on lg): AdSlot 2 & Quick Action Cards */}
                 <div className="lg:col-span-4 space-y-6">
                   {/* AD SLOT 2: GOOGLE ADSENSE RECTANGLE CONTAINER (Sidebar) */}
-                  <AdSenseContainer slot="rectangle" />
+                  {userPlan === 'free' && <AdSenseContainer slot="rectangle" />}
 
                   {/* Quick Action Helper Card */}
                   <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
@@ -657,14 +696,22 @@ export default function App() {
                     </h3>
 
                     <button
-                      onClick={() => setIsWhiteLabelOpen(true)}
+                      onClick={() => {
+                        if (userPlan === 'free') {
+                          handleLockedFeatureClick('White-Label PDF');
+                        } else {
+                          setIsWhiteLabelOpen(true);
+                        }
+                      }}
                       className="cursor-pointer w-full flex items-center justify-between p-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 transition-colors text-xs font-semibold group"
+                      title={userPlan === 'free' ? 'Locked on Free Plan - Click to Upgrade' : 'Export White-Label PDF Report'}
                     >
                       <span className="flex items-center gap-2">
-                        <FileDown className="w-4 h-4 text-emerald-400" />
+                        {userPlan === 'free' ? <Lock className="w-4 h-4 text-emerald-400" /> : <FileDown className="w-4 h-4 text-emerald-400" />}
                         <span>Export White-Label PDF</span>
                       </span>
-                      <span className="text-[10px] text-emerald-400 font-bold uppercase bg-emerald-500/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase bg-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+                        {userPlan === 'free' && <Lock className="w-3 h-3" />}
                         PRO
                       </span>
                     </button>
@@ -683,14 +730,30 @@ export default function App() {
                     </button>
 
                     <button
-                      onClick={() => setIsBatchOpen(true)}
+                      onClick={() => {
+                        if (userPlan === 'free') {
+                          handleLockedFeatureClick('Agency Batch Scan');
+                        } else if (userPlan === 'pro') {
+                          handleAgencyLockedFeatureClick();
+                        } else {
+                          setIsBatchOpen(true);
+                        }
+                      }}
                       className="cursor-pointer w-full flex items-center justify-between p-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-white border border-slate-700 transition-colors text-xs font-semibold group"
+                      title={
+                        userPlan === 'free'
+                          ? 'Locked on Free Plan - Click to Upgrade'
+                          : userPlan === 'pro'
+                          ? 'Agency Automation Plan Exclusive - Click to Unlock'
+                          : 'Agency Batch Scan'
+                      }
                     >
                       <span className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-amber-400" />
+                        {userPlan === 'agency' ? <Zap className="w-4 h-4 text-amber-400" /> : <Lock className="w-4 h-4 text-amber-400" />}
                         <span>Agency Batch Scan</span>
                       </span>
-                      <span className="text-[10px] text-amber-400 font-bold uppercase bg-amber-500/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] text-amber-400 font-bold uppercase bg-amber-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+                        {userPlan !== 'agency' && <Lock className="w-3 h-3" />}
                         AGENCY
                       </span>
                     </button>
@@ -730,7 +793,7 @@ export default function App() {
             )}
 
             {/* AD SLOT 3: GOOGLE ADSENSE ANCHOR CONTAINER (Bottom of Report) */}
-            <AdSenseContainer slot="anchor" />
+            {userPlan === 'free' && <AdSenseContainer slot="anchor" />}
           </div>
         )}
 
@@ -751,8 +814,8 @@ export default function App() {
 
             <BlogSection />
 
-            {/* AdSense Placement in Blog Feed */}
-            <AdSenseContainer slot="leaderboard" />
+            {/* AdSense Placement in Blog Feed (Free Tier only) */}
+            {userPlan === 'free' && <AdSenseContainer slot="leaderboard" />}
           </div>
         )}
       </main>
@@ -787,7 +850,8 @@ export default function App() {
           onClose={() => setIsWhiteLabelOpen(false)}
           result={auditResult}
           userPlan={userPlan}
-          onOpenUpgradeModal={() => handleOpenUpgrade('pro')}
+          onOpenUpgradeModal={() => handleOpenUpgrade('agency')}
+          onLockedAgencyFeature={handleAgencyLockedFeatureClick}
         />
       )}
 
@@ -804,10 +868,18 @@ export default function App() {
         onClose={() => setIsBatchOpen(false)}
         userPlan={userPlan}
         onOpenUpgradeModal={() => handleOpenUpgrade('agency')}
+        onLockedAgencyFeature={handleAgencyLockedFeatureClick}
         onSelectUrlForAudit={(url) => {
           setUrlInput(url);
           runAudit(url);
         }}
+      />
+
+      {/* Agency Feature Lock Alert Modal for Pro Users */}
+      <AgencyAlertModal
+        isOpen={isAgencyAlertOpen}
+        onClose={() => setIsAgencyAlertOpen(false)}
+        onUpgradeToAgency={() => handleOpenUpgrade('agency')}
       />
     </div>
   );

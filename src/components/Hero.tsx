@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Globe, Flame, Loader2, ArrowRight, Sparkles, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Globe, Flame, Loader2, ArrowRight, Sparkles, CheckCircle2, ShieldAlert, Lock } from 'lucide-react';
+import { PlanType } from '../types';
 
 interface HeroProps {
   urlInput: string;
@@ -13,6 +14,9 @@ interface HeroProps {
   onRunAudit: (e?: React.FormEvent) => void;
   isLoading: boolean;
   hasResult: boolean;
+  userPlan?: PlanType;
+  freeAuditsRemaining?: number;
+  onLockedFeatureClick?: (feature: string) => void;
 }
 
 const PRESET_URLS = [
@@ -35,13 +39,23 @@ export const Hero: React.FC<HeroProps> = ({
   onRunAudit,
   isLoading,
   hasResult,
+  userPlan = 'free',
+  freeAuditsRemaining = 3,
+  onLockedFeatureClick,
 }) => {
   const [inputError, setInputError] = useState('');
+
+  const isRateLimited = userPlan === 'free' && freeAuditsRemaining <= 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) {
       setInputError('Please enter a website URL (e.g. yoursite.com)');
+      return;
+    }
+    if (isRateLimited) {
+      setInputError('You have reached the maximum of 3 quick site checks for this session. Please upgrade to a premium plan to get unlimited deep audits.');
+      onLockedFeatureClick?.('Unlimited Deep Audits');
       return;
     }
     setInputError('');
@@ -179,6 +193,24 @@ export const Hero: React.FC<HeroProps> = ({
             <ShieldAlert className="w-3.5 h-3.5" />
             {inputError}
           </p>
+        )}
+
+        {isRateLimited && (
+          <div className="mt-3 p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>
+                <strong>Free Limit Reached (3/3 Passes Used):</strong> You have reached your limit of 3 quick site checks per session. Please upgrade to a premium plan to get unlimited deep audits.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onLockedFeatureClick?.('Unlimited Deep Audits')}
+              className="cursor-pointer px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider shrink-0 transition-colors shadow-md shadow-emerald-500/20"
+            >
+              Upgrade Plan
+            </button>
+          </div>
         )}
 
         {/* Quick Click Preset Chips */}
