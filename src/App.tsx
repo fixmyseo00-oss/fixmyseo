@@ -314,9 +314,9 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, duration: number = 3500) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    setTimeout(() => setToastMessage(null), duration);
   };
 
   const handleOpenUpgrade = (plan: PlanType = 'pro', cycle: 'monthly' | 'yearly' = 'monthly') => {
@@ -455,8 +455,8 @@ export default function App() {
     <div className="min-h-screen bg-[#070A0F] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/30 selection:text-emerald-300">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs shadow-2xl shadow-emerald-500/30 animate-in slide-in-from-bottom duration-200">
-          <Check className="w-4 h-4" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs shadow-2xl shadow-emerald-500/30 animate-in slide-in-from-bottom duration-200 max-w-md sm:max-w-lg leading-relaxed">
+          <Check className="w-4 h-4 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -841,6 +841,7 @@ export default function App() {
         targetPlan={targetCheckoutPlan}
         billingCycle={checkoutBilling}
         onConfirmUpgrade={handleConfirmUpgrade}
+        onShowSuccessToast={showToast}
       />
 
       {/* White-Label Report Export Modal */}
