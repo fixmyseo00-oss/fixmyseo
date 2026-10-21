@@ -300,6 +300,50 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // GLOBAL SOCIAL BAR IN-PAGE WIDGET SLOT: Dynamically inject right before closing </body>
+  // Strictly conditional: Only loads, executes and displays on FREE Plan.
+  // Systematically removed/suppressed on Starter Pro ($9) or Agency Automation ($19).
+  useEffect(() => {
+    const SOCIAL_BAR_SCRIPT_ID = 'adsterra-social-bar-widget';
+    const SCRIPT_URL = 'https://bauval.org/14/203eff67b54ae5ef43c7c66b28bba80b';
+
+    if (userPlan === 'free') {
+      const existing = document.getElementById(SOCIAL_BAR_SCRIPT_ID);
+      if (!existing) {
+        const script = document.createElement('script');
+        script.id = SOCIAL_BAR_SCRIPT_ID;
+        script.type = 'text/javascript';
+        script.setAttribute('data-cfasync', 'false');
+        script.src = SCRIPT_URL;
+        script.async = true;
+        // Inject dynamically right before closing </body> tag
+        document.body.appendChild(script);
+      }
+    } else {
+      // Systematically remove and suppress when Starter Pro ($9) or Agency ($19) is active
+      const script = document.getElementById(SOCIAL_BAR_SCRIPT_ID);
+      if (script) {
+        script.remove();
+      }
+      // Remove any social bar or floating ad nodes injected by Adsterra
+      try {
+        const adsterraNodes = document.querySelectorAll(
+          '[id*="at-cv-lightbox"], [class*="at-cv-lightbox"], [id*="adsterra"], [class*="adsterra"], [id*="social-bar"], [class*="social-bar"], iframe[src*="bauval"]'
+        );
+        adsterraNodes.forEach((node) => node.remove());
+      } catch {
+        // ignore
+      }
+    }
+
+    return () => {
+      if (userPlan !== 'free') {
+        const script = document.getElementById(SOCIAL_BAR_SCRIPT_ID);
+        if (script) script.remove();
+      }
+    };
+  }, [userPlan]);
+
   const navigateTo = (route: AppRoute, queryParam?: string) => {
     setCurrentRoute(route);
     let targetUrl = '/';
@@ -489,6 +533,13 @@ export default function App() {
         {/* ======================================================== */}
         {currentRoute === 'home' && (
           <div className="space-y-12 animate-in fade-in duration-300">
+            {/* TOP HORIZONTAL BANNER (728x90) SLOT: Active Adsterra Leaderboard (Free Plan only) */}
+            {userPlan === 'free' && (
+              <div className="w-full flex justify-center -mb-6">
+                <AdSenseContainer slot="leaderboard" userPlan={userPlan} className="!my-0" />
+              </div>
+            )}
+
             {/* HERO & INPUT SECTION: Minimalist bar with Scan button */}
             <Hero
               urlInput={urlInput}
@@ -616,8 +667,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* AD SLOT 1: GOOGLE ADSENSE LEADERBOARD CONTAINER (Top of Report) */}
-            {userPlan === 'free' && <AdSenseContainer slot="leaderboard" />}
+            {/* TOP HORIZONTAL BANNER (728x90) SLOT: Active Adsterra Leaderboard (Top of Report) */}
+            {userPlan === 'free' && <AdSenseContainer slot="leaderboard" userPlan={userPlan} />}
 
             {/* Loading Indicator inside Report Dashboard */}
             {isLoading && (
@@ -634,7 +685,7 @@ export default function App() {
                 </div>
                 {/* Free Plan Loading Screen Interstitial Ad Space */}
                 {userPlan === 'free' && (
-                  <AdSenseContainer slot="interstitial" className="mt-4" />
+                  <AdSenseContainer slot="interstitial" userPlan={userPlan} className="mt-4" />
                 )}
               </div>
             )}
@@ -687,7 +738,7 @@ export default function App() {
                 {/* Right Sidebar (4 cols on lg): AdSlot 2 & Quick Action Cards */}
                 <div className="lg:col-span-4 space-y-6">
                   {/* AD SLOT 2: GOOGLE ADSENSE RECTANGLE CONTAINER (Sidebar) */}
-                  {userPlan === 'free' && <AdSenseContainer slot="rectangle" />}
+                  {userPlan === 'free' && <AdSenseContainer slot="rectangle" userPlan={userPlan} />}
 
                   {/* Quick Action Helper Card */}
                   <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
@@ -793,7 +844,7 @@ export default function App() {
             )}
 
             {/* AD SLOT 3: GOOGLE ADSENSE ANCHOR CONTAINER (Bottom of Report) */}
-            {userPlan === 'free' && <AdSenseContainer slot="anchor" />}
+            {userPlan === 'free' && <AdSenseContainer slot="anchor" userPlan={userPlan} />}
           </div>
         )}
 
@@ -814,8 +865,8 @@ export default function App() {
 
             <BlogSection />
 
-            {/* AdSense Placement in Blog Feed (Free Tier only) */}
-            {userPlan === 'free' && <AdSenseContainer slot="leaderboard" />}
+            {/* TOP HORIZONTAL BANNER (728x90) SLOT: Active Adsterra Leaderboard in Blog Feed */}
+            {userPlan === 'free' && <AdSenseContainer slot="leaderboard" userPlan={userPlan} />}
           </div>
         )}
       </main>
