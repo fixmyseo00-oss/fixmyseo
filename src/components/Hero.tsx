@@ -17,6 +17,7 @@ interface HeroProps {
   userPlan?: PlanType;
   freeAuditsRemaining?: number;
   onLockedFeatureClick?: (feature: string) => void;
+  onWatchAd?: () => void;
 }
 
 const PRESET_URLS = [
@@ -42,6 +43,7 @@ export const Hero: React.FC<HeroProps> = ({
   userPlan = 'free',
   freeAuditsRemaining = 3,
   onLockedFeatureClick,
+  onWatchAd,
 }) => {
   const [inputError, setInputError] = useState('');
 
@@ -49,13 +51,16 @@ export const Hero: React.FC<HeroProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!urlInput.trim()) {
-      setInputError('Please enter a website URL (e.g. yoursite.com)');
+    if (isRateLimited) {
+      if (onWatchAd) {
+        onWatchAd();
+      } else {
+        onLockedFeatureClick?.('Unlimited Deep Audits');
+      }
       return;
     }
-    if (isRateLimited) {
-      setInputError('You have reached the maximum of 3 quick site checks for this session. Please upgrade to a premium plan to get unlimited deep audits.');
-      onLockedFeatureClick?.('Unlimited Deep Audits');
+    if (!urlInput.trim()) {
+      setInputError('Please enter a website URL (e.g. yoursite.com)');
       return;
     }
     setInputError('');
@@ -101,7 +106,11 @@ export const Hero: React.FC<HeroProps> = ({
         >
           {/* Left Input Field: Fills all available horizontal space */}
           <div className="flex-1 flex items-center min-w-0 px-3 py-2 lg:py-0">
-            <Globe className="w-5 h-5 text-slate-400 mr-2.5 shrink-0" />
+            {isRateLimited ? (
+              <Lock className="w-5 h-5 text-amber-400 mr-2.5 shrink-0 animate-pulse" />
+            ) : (
+              <Globe className="w-5 h-5 text-slate-400 mr-2.5 shrink-0" />
+            )}
             <label htmlFor="website-url-input" className="sr-only">
               Website URL to audit
             </label>
@@ -113,12 +122,20 @@ export const Hero: React.FC<HeroProps> = ({
                 setUrlInput(e.target.value);
                 if (inputError) setInputError('');
               }}
-              placeholder="Enter URL (e.g. shopify.com, stripe.com, yourdomain.com)"
+              placeholder={
+                isRateLimited
+                  ? "Scan locked (3/3 passes used). Click 'Watch Ad' to unlock..."
+                  : "Enter URL (e.g. shopify.com, stripe.com, yourdomain.com)"
+              }
               aria-label="Website URL"
-              className="w-full bg-transparent text-white placeholder-slate-500 text-sm sm:text-base focus:outline-none truncate"
-              disabled={isLoading}
+              className={`w-full bg-transparent text-sm sm:text-base focus:outline-none truncate ${
+                isRateLimited
+                  ? 'text-slate-400 placeholder-amber-400/80 cursor-not-allowed'
+                  : 'text-white placeholder-slate-500'
+              }`}
+              disabled={isLoading || isRateLimited}
             />
-            {urlInput && !isLoading && (
+            {urlInput && !isLoading && !isRateLimited && (
               <button
                 type="button"
                 onClick={() => setUrlInput('')}
@@ -130,61 +147,74 @@ export const Hero: React.FC<HeroProps> = ({
             )}
           </div>
 
-          {/* Right Controls Container: Exactly aligned on horizontal line with h-11 */}
+          {/* Right Controls Container: When locked, dynamically replaces Scan button with prominent pulsing Watch Ad button */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Language Selector Dropdown (Tier 1 English vs Hinglish) */}
-            <div className="relative shrink-0">
-              <label htmlFor="roast-language-select" className="sr-only">
-                Roast Language Mode
-              </label>
-              <select
-                id="roast-language-select"
-                value={roastLanguage}
-                onChange={(e) => setRoastLanguage(e.target.value as 'hinglish' | 'english')}
-                className="h-11 bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700 rounded-xl px-2.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
-                title="Select Roast Language Style"
+            {isRateLimited ? (
+              <button
+                type="button"
+                onClick={onWatchAd}
+                className="cursor-pointer h-11 px-5 sm:px-6 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black text-xs sm:text-sm tracking-wide transition-all shadow-xl shadow-emerald-500/40 ring-2 ring-emerald-400/60 animate-pulse shrink-0 flex items-center justify-center gap-2 whitespace-nowrap"
+                title="Watch Ad to get 1 free search scan pass"
               >
-                <option value="hinglish">🔥 Hindi</option>
-                <option value="english">🌍 English</option>
-              </select>
-            </div>
+                <span>🎁 Watch Ad to Unlock Next Scan</span>
+              </button>
+            ) : (
+              <>
+                {/* Language Selector Dropdown (Tier 1 English vs Hinglish) */}
+                <div className="relative shrink-0">
+                  <label htmlFor="roast-language-select" className="sr-only">
+                    Roast Language Mode
+                  </label>
+                  <select
+                    id="roast-language-select"
+                    value={roastLanguage}
+                    onChange={(e) => setRoastLanguage(e.target.value as 'hinglish' | 'english')}
+                    className="h-11 bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700 rounded-xl px-2.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    title="Select Roast Language Style"
+                  >
+                    <option value="hinglish">🔥 Hindi</option>
+                    <option value="english">🌍 English</option>
+                  </select>
+                </div>
 
-            {/* Roast Level Dropdown in Input Bar */}
-            <div className="relative shrink-0">
-              <label htmlFor="roast-level-select" className="sr-only">
-                Roast Level
-              </label>
-              <select
-                id="roast-level-select"
-                value={roastLevel}
-                onChange={(e) => setRoastLevel(e.target.value)}
-                className="h-11 bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700 rounded-xl px-2.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
-                title="Select Roast spice level"
-              >
-                <option value="Mild Chai Roast">☕ Mild</option>
-                <option value="Masala Spicy">🌶️ Spicy</option>
-                <option value="Nuclear Desi Burn">🔥 Nuclear</option>
-              </select>
-            </div>
+                {/* Roast Level Dropdown in Input Bar */}
+                <div className="relative shrink-0">
+                  <label htmlFor="roast-level-select" className="sr-only">
+                    Roast Level
+                  </label>
+                  <select
+                    id="roast-level-select"
+                    value={roastLevel}
+                    onChange={(e) => setRoastLevel(e.target.value)}
+                    className="h-11 bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-700 rounded-xl px-2.5 focus:outline-none focus:border-emerald-500 cursor-pointer"
+                    title="Select Roast spice level"
+                  >
+                    <option value="Mild Chai Roast">☕ Mild</option>
+                    <option value="Masala Spicy">🌶️ Spicy</option>
+                    <option value="Nuclear Desi Burn">🔥 Nuclear</option>
+                  </select>
+                </div>
 
-            {/* Run Instant Audit Button: Flawless alignment */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="cursor-pointer h-11 px-5 sm:px-6 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-sm tracking-wide transition-all shadow-lg shadow-emerald-500/25 shrink-0 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed group whitespace-nowrap"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Scanning...</span>
-                </>
-              ) : (
-                <>
-                  <span>Scan</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </>
-              )}
-            </button>
+                {/* Run Instant Audit Button: Flawless alignment */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="cursor-pointer h-11 px-5 sm:px-6 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-sm tracking-wide transition-all shadow-lg shadow-emerald-500/25 shrink-0 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed group whitespace-nowrap"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Scanning...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Scan</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </form>
 
@@ -196,20 +226,39 @@ export const Hero: React.FC<HeroProps> = ({
         )}
 
         {isRateLimited && (
-          <div className="mt-3 p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>
-                <strong>Free Limit Reached (3/3 Passes Used):</strong> You have reached your limit of 3 quick site checks per session. Please upgrade to a premium plan to get unlimited deep audits.
-              </span>
+          <div className="mt-3 p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left shadow-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <strong className="block text-white font-bold text-xs sm:text-sm flex items-center gap-1.5">
+                  <span>Free Session Quota Reached (3/3 Passes Used)</span>
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                    Ad-Gate Active
+                  </span>
+                </strong>
+                <span className="text-slate-300 text-[11px] sm:text-xs">
+                  Watch a sponsor ad to instantly unlock your next free website scan, or upgrade for unlimited audits.
+                </span>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => onLockedFeatureClick?.('Unlimited Deep Audits')}
-              className="cursor-pointer px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider shrink-0 transition-colors shadow-md shadow-emerald-500/20"
-            >
-              Upgrade Plan
-            </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+              <button
+                type="button"
+                onClick={onWatchAd}
+                className="cursor-pointer flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black text-xs tracking-wide shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400/50 animate-pulse transition-all whitespace-nowrap"
+              >
+                🎁 Watch Ad to Unlock Next Scan
+              </button>
+              <button
+                type="button"
+                onClick={() => onLockedFeatureClick?.('Unlimited Deep Audits')}
+                className="cursor-pointer px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs border border-slate-700 transition-colors shrink-0"
+              >
+                Upgrade Plan
+              </button>
+            </div>
           </div>
         )}
 

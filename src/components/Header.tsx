@@ -13,6 +13,7 @@ interface HeaderProps {
   onNavigateToHome: () => void;
   onNavigateToBlog: () => void;
   onOpenLegalModal: (tab: LegalTab) => void;
+  onWatchAd?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToHome,
   onNavigateToBlog,
   onOpenLegalModal,
+  onWatchAd,
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-[#070A0F]/90 backdrop-blur-md">
@@ -102,14 +104,25 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls & Plan Status */}
         <div className="flex items-center gap-3">
-          {/* Free Tier Pass Counter / Premium Active Indicator */}
+          {/* Free Tier Pass Counter / Ad-Gate Action / Premium Active Indicator */}
           {userPlan === 'free' ? (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>
-                <strong className="text-emerald-400">{freeAuditsRemaining}</strong> / 3 Free Passes Left
-              </span>
-            </div>
+            freeAuditsRemaining > 0 ? (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>
+                  <strong className="text-emerald-400">{freeAuditsRemaining}</strong> / 3 Free Passes Left
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={onWatchAd}
+                className="cursor-pointer hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-xs font-bold text-emerald-300 animate-pulse hover:bg-emerald-500/25 transition-all shadow-sm"
+                title="Click to watch ad and unlock next scan pass"
+              >
+                <span>🎁 Unlock Next Scan</span>
+              </button>
+            )
           ) : (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-semibold text-emerald-400 shadow-sm shadow-emerald-500/10">
               <Crown className="w-3.5 h-3.5" />

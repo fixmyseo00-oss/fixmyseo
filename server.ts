@@ -9,8 +9,19 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function getPort(): number {
+  const portArgIndex = process.argv.indexOf('--port');
+  if (portArgIndex !== -1 && process.argv[portArgIndex + 1]) {
+    return parseInt(process.argv[portArgIndex + 1], 10);
+  }
+  // AI Studio environment constraint: Dev server must run on port 3000
+  if (process.env.PORT && process.env.PORT !== '8080') {
+    return parseInt(process.env.PORT, 10);
+  }
+  return 3000;
+}
+const PORT = getPort();
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json({ limit: '1mb' }));
 

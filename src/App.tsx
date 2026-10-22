@@ -408,6 +408,27 @@ export default function App() {
     setIsAgencyAlertOpen(true);
   };
 
+  const ADSTERRA_SMARTLINK_URL = 'https://auctionr.org/4/e22f0404b4047a1fc61fdf9f89c7920f';
+
+  const handleWatchAd = () => {
+    // 1. Instantly open official live Adsterra Smartlink in a new blank browser tab/window
+    const win = window.open(ADSTERRA_SMARTLINK_URL, '_blank', 'noopener,noreferrer');
+    if (!win) {
+      const link = document.createElement('a');
+      link.href = ADSTERRA_SMARTLINK_URL;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 2. On the main application dashboard layout in the background, temporarily unlock the main text input field and modify validation counter token to allow exactly ONE (1) more new search scan pass
+    setFreeAuditsRemaining(1);
+    localStorage.setItem('fixmyseo_free_audits', '1');
+    showToast('🎁 Sponsor Ad Verified! Exactly 1 new search scan pass unlocked. Enter a URL to scan.');
+  };
+
   const runAudit = async (
     customUrl?: string,
     customLevel?: string,
@@ -419,10 +440,10 @@ export default function App() {
 
     if (!targetUrl.trim()) return;
 
-    // Check free session limit (strictly 3 passes)
+    // Check free session limit (strictly 3 passes initially, Ad-Gate unlocked thereafter)
     if (userPlan === 'free' && freeAuditsRemaining <= 0) {
-      showToast('You have reached your 3 free quick site check passes limit! Please upgrade to a premium plan to get unlimited deep audits.');
-      handleLockedFeatureClick('Unlimited Deep Audits');
+      showToast('Scan quota reached! Click "🎁 Watch Ad to Unlock Next Scan" to unlock your next pass.');
+      handleWatchAd();
       return;
     }
 
@@ -524,6 +545,7 @@ export default function App() {
         onNavigateToHome={() => navigateTo('home')}
         onNavigateToBlog={() => navigateTo('blog')}
         onOpenLegalModal={handleOpenLegal}
+        onWatchAd={handleWatchAd}
       />
 
       {/* Main Semantic Landmark Container */}
@@ -556,6 +578,7 @@ export default function App() {
               userPlan={userPlan}
               freeAuditsRemaining={freeAuditsRemaining}
               onLockedFeatureClick={handleLockedFeatureClick}
+              onWatchAd={handleWatchAd}
             />
 
             {/* Dynamic Recent Audits Container */}
@@ -617,7 +640,7 @@ export default function App() {
           <div className="space-y-8 animate-in fade-in duration-300">
             {/* Top Navigation & Action Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <button
                   onClick={() => navigateTo('home')}
                   className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition-colors"
@@ -626,6 +649,19 @@ export default function App() {
                   <ArrowLeft className="w-4 h-4 text-emerald-400" />
                   <span>Scan Another Site</span>
                 </button>
+
+                {userPlan === 'free' && freeAuditsRemaining <= 0 && (
+                  <button
+                    onClick={() => {
+                      handleWatchAd();
+                      navigateTo('home');
+                    }}
+                    className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400/50 animate-pulse transition-all whitespace-nowrap"
+                    title="Watch Ad to Unlock Next Scan"
+                  >
+                    <span>🎁 Watch Ad to Unlock Next Scan</span>
+                  </button>
+                )}
 
                 <div className="h-5 w-px bg-slate-800 hidden sm:block" />
 
@@ -745,6 +781,25 @@ export default function App() {
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
                       Audit Actions & Exports
                     </h3>
+
+                    {userPlan === 'free' && freeAuditsRemaining <= 0 && (
+                      <button
+                        onClick={() => {
+                          handleWatchAd();
+                          navigateTo('home');
+                        }}
+                        className="cursor-pointer w-full flex items-center justify-between p-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black text-xs transition-all shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400/50 animate-pulse group"
+                        title="Watch Ad to Unlock Next Scan"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-slate-950" />
+                          <span>🎁 Watch Ad to Unlock Next Scan</span>
+                        </span>
+                        <span className="text-[10px] bg-slate-950 text-emerald-400 font-bold px-2 py-0.5 rounded">
+                          +1 Pass
+                        </span>
+                      </button>
+                    )}
 
                     <button
                       onClick={() => {
