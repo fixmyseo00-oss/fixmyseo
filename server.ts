@@ -175,6 +175,134 @@ function calculateGrade(score: number): 'A+' | 'A' | 'B' | 'C' | 'D' | 'F' {
   return 'F';
 }
 
+// Domain-Aware Savage Hinglish Roaster (Zero Templates, Pure Sarcasm & 3 Punchy Bullets)
+function generateDomainAwareHinglishRoast(
+  domain: string,
+  _title: string,
+  _scraped: ScrapedData,
+  overall: number,
+  roastLevel: string
+) {
+  const d = domain.toLowerCase();
+  const rawBrand = domain.replace(/^www\./, '').split('.')[0];
+  const brandCaps = rawBrand.toUpperCase();
+
+  const isEcommerce = /(shop|store|boutique|cart|buy|mart|retail|mall|fashion|shoe|cloth|outfit|gear|deal)/i.test(d);
+  const isTechSaas = /(dev|tech|ai|portfolio|app|io|soft|cloud|saas|stack|api|code|studio|bot)/i.test(d);
+  const isCrypto = /(crypto|coin|token|web3|dao|nft|chain|defi|dex|btc|eth|sol)/i.test(d);
+  const isBlogNews = /(blog|news|daily|times|post|journal|press|article|media|buzz)/i.test(d);
+
+  let bullets: [string, string, string];
+  let nickname: string;
+  let punchlines: string[];
+  let prescription: string[];
+
+  if (isEcommerce) {
+    nickname = `${brandCaps} - Dropshipping Ki Dukan`;
+    bullets = [
+      `AliExpress se $2 ka sasta maal utha kar $49 mein bechne ka jo overconfidence hai, usey dekh kar Mark Zuckerberg bhi apna phone switch off kar le—bhai kya soch kar banaya tha yeh e-commerce tamasha?`,
+      `Fake countdown timer aur 99% discount popups ka aisa ajeeb nasha hai ki design dekh kar rona agaya; UX ka janaza aisa nikla hai ki add-to-cart button dhoondhne ke liye GPS on karna padta hai.`,
+      `Chinese supplier ka shipping time 45 din hai aur user ka bounce rate 2 second—traffic itna zero hai ki tumhare payment gateway pe makdi ne jaala bana liya hai.`,
+    ];
+    punchlines = [
+      `AliExpress se $2 ka maal utha kar $49 mein bechne ka alag hi overconfidence hai!`,
+      `Fake countdown timer lagane se sasta template luxury boutique nahi ban jaata!`,
+      `Chinese supplier 45 din mein delivery karega aur user 2 second mein tab band karke bhaag gaya!`,
+      `Cart button dhoondhne ke liye customer ko treasure hunt khelna pad raha hai!`,
+    ];
+    prescription = [
+      `Faltu popups aur fake urgency countdown timers foran trash bin mein daalo.`,
+      `Images ko 8MB PNG se 50KB WebP mein compress karo taaki store 2 second ke andar render ho.`,
+      `Product pages pe genuine reviews aur real delivery estimate likhna shuru karo.`,
+    ];
+  } else if (isTechSaas) {
+    nickname = `${brandCaps} - Copy-Paste Unicorn`;
+    bullets = [
+      `Wrapper API pe apna logo chipka kar "Revolutionary Next-Gen AI Platform" ghoshit kar diya—bhai kya soch kar banaya tha yeh copy-paste engineer ka chamatkar?`,
+      `Overused glassmorphism, bekar gradient aur dark mode ka aisa ajeeb nasha hai ki design dekh kar rona agaya; mobile pe kholte hi typography aur layout ka janaza nikal jata hai.`,
+      `Landing page pe "Trusted by 10,000+ Teams" likh kar khud ko fool bana rahe ho, jabki reality yeh hai ki tumhari mummy aur tumhare college ke room partner ke alawa yahan koi traffic nahi aata.`,
+    ];
+    punchlines = [
+      `API wrapper pe logo chipka kar khud ko Sam Altman samajhne ka ajeeb nasha hai!`,
+      `Overused glassmorphism design dekh kar rona agaya, lagta hai Figma tutorial aadha dekha tha!`,
+      `Landing page pe "Trusted by Fortune 500" likha hai par traffic mein bas tumhari mummy ka click hai!`,
+      `Tech stack itna overcomplicated hai par website ka load time 90s ke dial-up jaisa hai!`,
+    ];
+    prescription = [
+      `Faltu three.js canvas aur bloatware scripts hatao taaki LCP 2.0 second ke andar aaye.`,
+      `Jargon-bhari corporate buzzwords chhod kar simple 1-line value proposition likho.`,
+      `Single semantic <h1> tag lagao taaki Googlebot ko samajh aaye tool aakhir karta kya hai.`,
+    ];
+  } else if (isCrypto) {
+    nickname = `${brandCaps} - Rug-Pull Ka Adda`;
+    bullets = [
+      `Whitepaper mein 50 baar "Decentralized Autonomous Web3 Revolution" likhne se rug-pull ki smell gayab nahi hoti—life savings doobane ka poora roadmap pehle din se crystal clear hai.`,
+      `Website ka design 1998 ke scam banner jaisa hai jismein connect-wallet button har kone mein naach raha hai; UX ka aisa janaza nikla hai ki legitimate user dekhte hi browser crash kar le.`,
+      `Discord server mein 3 inactive bots aur 1 frustrated admin ke alawa koi zinda nahi bacha, aur organic traffic ka haal yeh hai ki Googlebot ne bhi safety warning laga kar tab close kar diya.`,
+    ];
+    punchlines = [
+      `Whitepaper padh ke lagta hai Mars pe colonization kar rahe hain, par roadmap pe bas rug-pull hai!`,
+      `Discord server itna sunsan hai ki vahan bhoot bhi akele aane se darta hai!`,
+      `Connect-wallet button pe click karte hi user ki life savings ka antim sanskar pakka hai!`,
+      `Googlebot ne tumhari Web3 landing page dekhi aur khud ko blocklist mein daal liya!`,
+    ];
+    prescription = [
+      `Spam wallet-connect prompts hatao aur pehle SSL/HTTPS security headers configure karo.`,
+      `Crypto buzzwords ki jagah actual utility aur verified team credentials disclose karo.`,
+      `Lightweight clean HTML structure banao taaki crawlers ko scam trap na lage.`,
+    ];
+  } else if (isBlogNews) {
+    nickname = `${brandCaps} - Clickbait Ki Dukan`;
+    bullets = [
+      `"Chaliye shuru karte hain" likh kar 4,000 words ka essay chaap diya jismein kaam ki baat ek line bhi nahi hai—muft ki salah baantne ka alag hi overconfidence hai.`,
+      `15 popups, 22 autoplay videos aur third-party ads ke jungle ke beech content aisa chhupa hai jaise jungle mein suyi; sasta template aur layout dekh kar rona agaya.`,
+      `Clickbait headline daal kar Google Discover ko ullu banane ki koshish ki, par algorithm ne site ko aisi gumnami mein phenka jahan se traffic ka ek katora bhi wapas nahi aana.`,
+    ];
+    punchlines = [
+      `Recipe blog mein pehle lekhak ne apne par-dada ki kahani likhi, namak ka chamach 5km neeche mila!`,
+      `Ads itne zyada hain ki galti se scroll karo toh seedha Dubai real-estate lead ban jaate ho!`,
+      `Clickbait title dekh kar user aaya tha, par back button dabane ki speed Olympic record tod gayi!`,
+      `Googlebot ne tumhari 5,000 words ki bakwaas padhi aur memory clean karke bhaag gaya!`,
+    ];
+    prescription = [
+      `Autoplay video ads aur 12 layer popups ko hata kar content ko readable banao.`,
+      `First 100 words mein direct answer provide karo taaki AEO/GEO engine quote kar sake.`,
+      `Meta description aur heading tags mein clickbait ki jagah actual value deliver karo.`,
+    ];
+  } else {
+    nickname = `${brandCaps} - Sasta Digital Thela`;
+    bullets = [
+      `Bhai kya soch kar banaya tha yeh concept? Value proposition aisi gayab hai jaise dhoop mein baraf—muft ki salah yeh hai ki dukan kholne se pehle socho bechna kya hai.`,
+      `Sasta template aur default theme utha kar live kar diya; design dekh kar rona agaya aur UX ka aisa janaza nikla hai ki user pehli 3 second mein escape key dhoondhta hai.`,
+      `Overconfidence itna ki SEO agency hire karne ke sapne dekh rahe ho, par organic traffic ka haal yeh hai ki analytics dashboard pe graph zameen ke andar tunnel khod raha hai.`,
+    ];
+    punchlines = [
+      `Bhai kya soch kar banaya tha yeh sasta template? Design dekh kar sach mein rona agaya!`,
+      `Website load hone mein itna time lag raha hai ki user chai peeke so bhi gaya!`,
+      `UX ka aisa janaza nikla hai ki navigation bar dhoondhne ke liye telescope chahiye!`,
+      `Organic traffic itna dry hai ki analytics ke dashboard pe cactus ug aaya hai!`,
+    ];
+    prescription = [
+      `Title tag aur meta description ko concise, keyword-rich aur action-oriented banao.`,
+      `Slow external fonts aur unoptimized images ko clean WebP mein migrate karo.`,
+      `Ek single authoritative H1 tag aur clear navigational hierarchy setup karo.`,
+    ];
+  }
+
+  const savageRoast = bullets.map((b) => `• ${b}`).join('\n\n');
+
+  return {
+    siteNickname: nickname,
+    savageRoast,
+    punchlines,
+    desiPrescription: prescription,
+    roastScore: `${(overall / 10).toFixed(1)}/10 - Sakht Dawaai Ki Zaroorat Hai!`,
+    shareableQuote: `Maine ${domain} ka SEO audit karwaya FixMySEO pe, aur AI ne aisi bezti ki ki ab main website delete karke kheti karne ja raha hoon! 😂`,
+    burnLevel: roastLevel,
+    language: 'hinglish',
+  };
+}
+
 // API: Instant SEO Audit & Hinglish Roast
 app.post('/api/audit', async (req, res) => {
   try {
@@ -215,14 +343,30 @@ app.post('/api/audit', async (req, res) => {
    - burnLevel: "${roastLevel}"
 ` : `
 6. HINGLISH AI ROASTER (Language: HINGLISH - DESI BURN):
-   Create a VIRAL, SAVAGE, ultra-funny roast of this website written entirely in authentic HINGLISH / conversational Hindi-Urdu slang.
-   Requirements for Hinglish roast:
-   - siteNickname: A hilarious, culturally relatable desi nickname (e.g., "The Digital Thela", "2G Speed Ka Champion", "Bina Pahiye Ki Gaadi", "Sarkari Website Ka Judwa Bhai").
-   - savageRoast: 3-4 paragraphs of hilarious, witty roast roasting their speed, missing alt tags, meta descriptions, or overall SEO sins. (e.g., "Bhai, website load hote hote user ka data package khatam ho jayega!", "Meta title aisa gayab hai jaise exam ke din topper ke notes!").
-   - punchlines: 4-5 funny one-liner Hinglish punches.
-   - desiPrescription: 3-4 funny yet technically accurate prescriptions in Hinglish (e.g. "Subah shaam 2 alt tags lagao", "Title tag ko gym bhejke 55 characters ka karo").
-   - roastScore: A funny rating string, e.g. "3.5/10 - Dawaai Ki Sakht Zaroorat Hai!"
-   - shareableQuote: A short punchy quote fit for a tweet or LinkedIn roast.
+   You are a savage, brutally honest, and hilarious AI Website Roaster who speaks fluent Hinglish (a mixture of street-style Hindi/Urdu and English). Your ultimate goal is to roast websites with extreme sarcasm, wit, and unique jokes based entirely on their domain name, industry, and online vibe.
+
+   CRITICAL INSTRUCTIONS TO PREVENT TEMPLATE REPETITION:
+   1. STRICTLY FORBIDDEN TEMPLATES: Do not reuse introductory hooks, middle filler phrases, or fixed conclusion punchlines. Every website must receive an entirely original roast layout.
+   2. NO SIMPLE NAME-SWAPPING: Do not use a pre-set paragraph and just change the website name. Craft unique analogies specifically for this domain ("${domain}").
+   3. DETECT DOMAIN TYPE & ROAST ACCORDINGLY:
+      - If the domain looks like an E-commerce/Shopify store (e.g., contains 'shop', 'store', 'boutique', 'cart', 'buy'): roast their generic dropshipping dreams, fake countdown timers, and Chinese supplier shipping times.
+      - If the domain looks like a Tech Portfolio/SaaS/AI tool (e.g., contains 'dev', 'tech', 'ai', 'portfolio', 'app', 'io', 'soft'): roast their overused glassmorphism design, boring tech stack, and the fact that nobody visits their site except their mom.
+      - If it looks like a Crypto/Web3 site (e.g., contains 'crypto', 'coin', 'token', 'web3', 'dao', 'nft', 'chain', 'defi'): roast their rug-pull vibes, dead discord servers, and loss of life savings.
+      - If it's a personal blog or news site (e.g., contains 'blog', 'news', 'daily', 'post', 'times', 'medium'): roast their essay-length introductions and clickbait nature.
+      - Otherwise: dynamically inspect the crawled page title and headings to roast their exact niche with savage accuracy.
+   4. TONE & VOCABULARY: Use raw, natural internet-slang Hinglish (words like: "Bhai kya soch kar banaya?", "Sasta template", "Design dekh kar rona agaya", "Ajeeb nashe hain", "UX ka janaza", "Copy-paste engineer", "Overconfidence", "Muft ki salah"). Avoid sounding like a formal translation tool.
+
+   OUTPUT FORMAT FOR savageRoast:
+   Deliver the roast in exactly 3 short, punchy, and utterly devastating bullet points formatted with "• " at the start of each bullet point (separated by double newlines).
+   - Point 1 must target the concept/idea/industry delusion.
+   - Point 2 must target the UI/UX layout vibe and technical execution (missing tags, sluggish speed, amateur aesthetics).
+   - Point 3 must target their realistic traffic/future (0 visitors, bounce rate, Googlebot abandoning them).
+   STRICT RULE: Do NOT include any greeting, intro hook, or conversational filler before or after the 3 bullet points in savageRoast!
+   - siteNickname: A sharp, culturally hilarious nickname (e.g. "${domain.split('.')[0].toUpperCase()} - Dropshipping Ki Dukan").
+   - punchlines: 4-5 razor-sharp Hinglish one-liners.
+   - desiPrescription: 3-4 witty, actionable remediation directives in Hinglish.
+   - roastScore: A funny rating string, e.g. "3.2/10 - Sakht Dawaai Ki Zaroorat Hai!"
+   - shareableQuote: A short punchy quote fit for a viral tweet or LinkedIn roast.
    - burnLevel: "${roastLevel}"
 `;
 
@@ -590,27 +734,7 @@ RETURN ONLY VALID RAW JSON (no markdown triple backticks around the json if poss
           shareableQuote: `I audited ${domain} on FixMySEO and the AI roasted our Core Web Vitals so hard our lead dev is reconsidering their career choices. 😂`,
           burnLevel: roastLevel,
           language: 'english',
-        } : {
-          siteNickname: `${domain.split('.')[0].toUpperCase()} Ka Digital Thela`,
-          savageRoast: `Arrey bhai bhai bhai! ${domain} ka SEO dekh ke Google ka spider bhi ulti daud laga raha hai! Website load hote hote user ka 2GB data pack aur patience dono khatam ho jayenge! Meta tags aise gayab hain jaise election ke baad neta ji, aur H1 dhoondhne ke liye CBI bulani padegi! Agar aisi speed rahi toh agla customer 2030 mein aayega bhai!`,
-          punchlines: [
-            `Bhai, website load hote hote user ka data package khatam ho jayega!`,
-            `Meta description itna khali hai jaise mahine ke aakhri hafte mein bank balance!`,
-            `Alt tags dhoondhne ke liye NASA ka telescope lagana padega!`,
-            `Googlebot ne bola: 'Yeh website index karne se achha main chai pee leta hoon!'`,
-            `Speed aisi hai ki kabootar isse tez sandesh pahuncha de!`,
-          ],
-          desiPrescription: [
-            `Subah shaam 2 alt tags lagao aur images ko WebP mein compress karo.`,
-            `Title tag ko gym bhej kar 55 characters ka fit banao.`,
-            `Ek solid H1 tag chipkao taaki Google ko pata chale dukaan kis cheez ki hai!`,
-            `Meta description mein mast masala daalo taaki click karne ka dil kare.`,
-          ],
-          roastScore: `${(overall / 10).toFixed(1)}/10 - Sakht Dawaai Ki Zaroorat Hai!`,
-          shareableQuote: `Maine ${domain} ka SEO audit karwaya FixMySEO pe, aur AI ne aisi bezti ki ki ab main website delete karke kheti karne ja raha hoon! 😂`,
-          burnLevel: roastLevel,
-          language: 'hinglish',
-        },
+        } : generateDomainAwareHinglishRoast(domain, scraped.title || '', scraped, overall, roastLevel),
       };
     }
 

@@ -186,20 +186,20 @@ const INITIAL_DEMO_RESULT: AuditResult = {
     },
   ],
   hinglishRoast: {
-    siteNickname: 'The 2G Bullock Cart of E-Commerce',
+    siteNickname: 'MYSHOPIFY-STORE - Dropshipping Ki Dukan',
     savageRoast:
-      'Arrey bhai bhai bhai! Shopify store banaya hai ya 1999 ka government portal? Title tag itna lamba hai jaise railway ticket ki waiting list, aur meta description itna gayab jaise salary aane ke do din baad ka bank balance!\n\nHero section load hote hote user ka 5G data pack 2G ban jayega aur customer Amazon chala jayega! H1 tag dhoondhte dhoondhte CBI ki special team thak gayi! Agar aisi speed rahi toh agla order 2035 mein aayega bhai!',
+      '• AliExpress se $2 ka sasta maal utha kar $49 mein bechne ka jo overconfidence hai, usey dekh kar Mark Zuckerberg bhi apna phone switch off kar le—bhai kya soch kar banaya tha yeh dropshipping tamasha?\n\n• Fake countdown timer aur 99% discount popups ka aisa ajeeb nasha hai ki design dekh kar rona agaya; UX ka janaza aisa nikla hai ki add-to-cart button dhoondhne ke liye GPS on karna padta hai.\n\n• Chinese supplier ka shipping time 45 din hai aur user ka bounce rate 2 second—traffic itna zero hai ki tumhare payment gateway pe makdi ne jaala bana liya hai, aur orders ke naam par bas silence hai.',
     punchlines: [
-      'Bhai, website load hone mein itna time lag raha hai ki user chai peeke so bhi gaya!',
-      'Title tag itna lamba hai ki Googlebot ko split-screen mode lagana pad raha hai!',
-      'Meta description aise gayab hai jaise exam ke din topper ke notes!',
-      'Images ke paas alt tags nahi hain, Google soch raha hai yeh samosa hai ya jalebi!',
+      'AliExpress se $2 ka maal utha kar $49 mein bechne ka alag hi overconfidence hai!',
+      'Fake countdown timer lagane se sasta template luxury boutique nahi ban jaata!',
+      'Chinese supplier 45 din mein delivery karega aur user 2 second mein tab band karke bhaag gaya!',
+      'Cart button dhoondhne ke liye customer ko treasure hunt khelna pad raha hai!',
     ],
     desiPrescription: [
-      'Subah shaam 2 alt tags lagao aur hero image ko WebP mein compress karo.',
-      'Title tag ko gym bhej kar 55 characters ka fit banao.',
-      'Ek solid H1 tag lagao taaki Google ko pata chale dukaan kis cheez ki hai!',
-      'Meta description mein mast masala daalo taaki click karne ka dil kare!',
+      'Faltu popups aur fake urgency countdown timers foran trash bin mein daalo.',
+      'Images ko 8MB PNG se 50KB WebP mein compress karo taaki store 2 second ke andar render ho.',
+      'Product pages pe genuine reviews aur real delivery estimate likhna shuru karo.',
+      'Ek single solid H1 tag lagao taaki Googlebot ko samajh aaye dukaan kis cheez ki hai.',
     ],
     roastScore: '3.4/10 - Sakht Dawaai Ki Zaroorat Hai!',
     shareableQuote:

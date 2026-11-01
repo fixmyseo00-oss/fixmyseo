@@ -231,14 +231,106 @@ Generate a viral, hilarious, and savage ${roastLanguage === 'english' ? 'Silicon
     // Handled silently
   }
 
-  // Step 4: Roast generation tailored specifically around the verified live parameters
-  const hinglishNicknames = [
-    `${brand.toUpperCase()} Ka Digital Thela`,
-    `The 2G Bullock Cart of ${domain}`,
-    `${brand.toUpperCase()} - Bina Dulhe Ki Baarat`,
-    `Sarkari Website Ka Judwa Bhai`,
-    `${brand.toUpperCase()} Ka 404 Dhaba`,
+  // Step 4: Roast generation tailored specifically around the domain type & verified parameters
+  const dLower = domain.toLowerCase();
+  const brandCaps = brand.toUpperCase();
+  const isEcommerce = /(shop|store|boutique|cart|buy|mart|retail|mall|fashion|shoe|cloth|outfit|gear|deal)/i.test(dLower);
+  const isTechSaas = /(dev|tech|ai|portfolio|app|io|soft|cloud|saas|stack|api|code|studio|bot)/i.test(dLower);
+  const isCrypto = /(crypto|coin|token|web3|dao|nft|chain|defi|dex|btc|eth|sol)/i.test(dLower);
+  const isBlogNews = /(blog|news|daily|times|post|journal|press|article|media|buzz)/i.test(dLower);
+
+  let hinglishNickname = `${brandCaps} - Sasta Digital Thela`;
+  let hinglishBullets: [string, string, string] = [
+    `Bhai kya soch kar banaya tha yeh concept? Value proposition aisi gayab hai jaise dhoop mein baraf—muft ki salah yeh hai ki dukan kholne se pehle socho bechna kya hai.`,
+    `Sasta template aur default theme utha kar live kar diya; design dekh kar rona agaya aur UX ka aisa janaza nikla hai ki title (${titleLength}ch) aur heading hierarchy dekh ke user pehli 3 second mein escape key dhoondhta hai.`,
+    `Overconfidence itna ki SEO agency hire karne ke sapne dekh rahe ho, par organic traffic ka haal yeh hai ki LCP (${lcpVal}s) ke rehte analytics dashboard pe graph zameen ke andar tunnel khod raha hai.`,
   ];
+  let hinglishPunchlines = [
+    `Bhai kya soch kar banaya tha yeh sasta template? Design dekh kar sach mein rona agaya!`,
+    `Website load hone mein itna time lag raha hai ki user chai peeke so bhi gaya!`,
+    `UX ka aisa janaza nikla hai ki navigation bar dhoondhne ke liye telescope chahiye!`,
+    `Organic traffic itna dry hai ki analytics ke dashboard pe cactus ug aaya hai!`,
+  ];
+  let hinglishPrescription = [
+    `Title tag ko gym bhej kar ${titleLength} characters se 55 characters ka fit banao.`,
+    `Meta description ko ${metaDescLength} characters se badha kar 145 characters ka masala do.`,
+    `Page par se faltu H1 hatao aur strictly 1 solid primary H1 tag rakho.`,
+    `Images ko compress karo taaki ${lcpVal}s ka LCP ghat ke 2.0s ke andar aa jaye!`,
+  ];
+
+  if (isEcommerce) {
+    hinglishNickname = `${brandCaps} - Dropshipping Ki Dukan`;
+    hinglishBullets = [
+      `AliExpress se $2 ka sasta maal utha kar $49 mein bechne ka jo overconfidence hai, usey dekh kar Mark Zuckerberg bhi apna phone switch off kar le—bhai kya soch kar banaya tha yeh dropshipping tamasha?`,
+      `Fake countdown timer aur 99% discount popups ka aisa ajeeb nasha hai ki design dekh kar rona agaya; UX ka janaza aisa nikla hai ki add-to-cart button dhoondhne ke liye GPS on karna padta hai.`,
+      `Chinese supplier ka shipping time 45 din hai aur user ka bounce rate 2 second—traffic itna zero hai ki tumhare payment gateway pe makdi ne jaala bana liya hai, aur orders ke naam par bas silence hai.`,
+    ];
+    hinglishPunchlines = [
+      `AliExpress se $2 ka maal utha kar $49 mein bechne ka alag hi overconfidence hai!`,
+      `Fake countdown timer lagane se sasta template luxury boutique nahi ban jaata!`,
+      `Chinese supplier 45 din mein delivery karega aur user 2 second mein tab band karke bhaag gaya!`,
+      `Cart button dhoondhne ke liye customer ko treasure hunt khelna pad raha hai!`,
+    ];
+    hinglishPrescription = [
+      `Faltu popups aur fake urgency countdown timers foran trash bin mein daalo.`,
+      `Images ko 8MB PNG se 50KB WebP mein compress karo taaki store 2 second ke andar render ho.`,
+      `Product pages pe genuine reviews aur real delivery estimate likhna shuru karo.`,
+    ];
+  } else if (isTechSaas) {
+    hinglishNickname = `${brandCaps} - Copy-Paste Unicorn`;
+    hinglishBullets = [
+      `Wrapper API pe apna logo chipka kar "Revolutionary Next-Gen AI Platform" ghoshit kar diya—bhai kya soch kar banaya tha yeh copy-paste engineer ka chamatkar?`,
+      `Overused glassmorphism, bekar gradient aur dark mode ka aisa ajeeb nasha hai ki design dekh kar rona agaya; mobile pe kholte hi typography aur layout ka janaza nikal jata hai.`,
+      `Landing page pe "Trusted by 10,000+ Teams" likh kar khud ko fool bana rahe ho, jabki reality yeh hai ki tumhari mummy aur tumhare college ke room partner ke alawa yahan koi traffic nahi aata.`,
+    ];
+    hinglishPunchlines = [
+      `API wrapper pe logo chipka kar khud ko Sam Altman samajhne ka ajeeb nasha hai!`,
+      `Overused glassmorphism design dekh kar rona agaya, lagta hai Figma tutorial aadha dekha tha!`,
+      `Landing page pe "Trusted by Fortune 500" likha hai par traffic mein bas tumhari mummy ka click hai!`,
+      `Tech stack itna overcomplicated hai par website ka load time 90s ke dial-up jaisa hai!`,
+    ];
+    hinglishPrescription = [
+      `Faltu three.js canvas aur bloatware scripts hatao taaki LCP 2.0 second ke andar aaye.`,
+      `Jargon-bhari corporate buzzwords chhod kar simple 1-line value proposition likho.`,
+      `Single semantic <h1> tag lagao taaki Googlebot ko samajh aaye tool aakhir karta kya hai.`,
+    ];
+  } else if (isCrypto) {
+    hinglishNickname = `${brandCaps} - Rug-Pull Ka Adda`;
+    hinglishBullets = [
+      `Whitepaper mein 50 baar "Decentralized Autonomous Web3 Revolution" likhne se rug-pull ki smell gayab nahi hoti—life savings doobane ka poora roadmap pehle din se crystal clear hai.`,
+      `Website ka design 1998 ke scam banner jaisa hai jismein connect-wallet button har kone mein naach raha hai; UX ka aisa janaza nikla hai ki legitimate user dekhte hi browser crash kar le.`,
+      `Discord server mein 3 inactive bots aur 1 frustrated admin ke alawa koi zinda nahi bacha, aur organic traffic ka haal yeh hai ki Googlebot ne bhi safety warning laga kar tab close kar diya.`,
+    ];
+    hinglishPunchlines = [
+      `Whitepaper padh ke lagta hai Mars pe colonization kar rahe hain, par roadmap pe bas rug-pull hai!`,
+      `Discord server itna sunsan hai ki vahan bhoot bhi akele aane se darta hai!`,
+      `Connect-wallet button pe click karte hi user ki life savings ka antim sanskar pakka hai!`,
+      `Googlebot ne tumhari Web3 landing page dekhi aur khud ko blocklist mein daal liya!`,
+    ];
+    hinglishPrescription = [
+      `Spam wallet-connect prompts hatao aur pehle SSL/HTTPS security headers configure karo.`,
+      `Crypto buzzwords ki jagah actual utility aur verified team credentials disclose karo.`,
+      `Lightweight clean HTML structure banao taaki crawlers ko scam trap na lage.`,
+    ];
+  } else if (isBlogNews) {
+    hinglishNickname = `${brandCaps} - Clickbait Ki Dukan`;
+    hinglishBullets = [
+      `"Chaliye shuru karte hain" likh kar 4,000 words ka essay chaap diya jismein kaam ki baat ek line bhi nahi hai—muft ki salah baantne ka alag hi overconfidence hai.`,
+      `15 popups, 22 autoplay videos aur third-party ads ke jungle ke beech content aisa chhupa hai jaise jungle mein suyi; sasta template aur layout dekh kar rona agaya.`,
+      `Clickbait headline daal kar Google Discover ko ullu banane ki koshish ki, par algorithm ne site ko aisi gumnami mein phenka jahan se traffic ka ek katora bhi wapas nahi aana.`,
+    ];
+    hinglishPunchlines = [
+      `Recipe blog mein pehle lekhak ne apne par-dada ki kahani likhi, namak ka chamach 5km neeche mila!`,
+      `Ads itne zyada hain ki galti se scroll karo toh seedha Dubai real-estate lead ban jaate ho!`,
+      `Clickbait title dekh kar user aaya tha, par back button dabane ki speed Olympic record tod gayi!`,
+      `Googlebot ne tumhari 5,000 words ki bakwaas padhi aur memory clean karke bhaag gaya!`,
+    ];
+    hinglishPrescription = [
+      `Autoplay video ads aur 12 layer popups ko hata kar content ko readable banao.`,
+      `First 100 words mein direct answer provide karo taaki AEO/GEO engine quote kar sake.`,
+      `Meta description aur heading tags mein clickbait ki jagah actual value deliver karo.`,
+    ];
+  }
 
   const englishNicknames = [
     `${brand.toUpperCase()} - The Series-A SEO Disaster`,
@@ -251,12 +343,12 @@ Generate a viral, hilarious, and savage ${roastLanguage === 'english' ? 'Silicon
   const siteNickname =
     roastLanguage === 'english'
       ? englishNicknames[seed % englishNicknames.length]
-      : hinglishNicknames[seed % hinglishNicknames.length];
+      : hinglishNickname;
 
   const savageRoast =
     roastLanguage === 'english'
       ? `Good grief! We audited ${domain} using verified live telemetry, and Googlebot literally submitted a two-week notice trying to index your architecture!\n\nYour title is an exact ${titleLength} characters long (${titleGood ? 'mercifully in range' : 'which Google immediately truncates with a humiliating ellipsis'}), while your meta description sits at ${metaDescLength} characters—practically an acoustic vacuum chamber for search intent!\n\nTo make matters more chaotic, you have ${h1Count} <h1> header instance(s) and ${h2Count} <h2> instances scattered across the page like unorganized Jira tickets. Your LCP clocked in at ${lcpVal}s, and your SSL infrastructure is ${sslActive ? 'active' : 'critically unencrypted'}. If your engineering team deploys databases the way they optimize DOM hierarchy, we genuinely pray your venture capitalists do not inspect the console!`
-      : `Arrey bhai bhai bhai! ${domain} ka verified live telemetry dekh ke Googlebot ne apna resignation submit kar diya hai!\n\nTitle tag poore ${titleLength} characters ka hai (${titleGood ? 'chalo kam se kam yeh bach gaya' : 'Googlebot ko split-screen mode lagana pad raha hai padhne ke liye'}), aur meta description ${metaDescLength} characters ka—itna khali jaise exam ke din topper ke notes!\n\nUpar se page par ${h1Count} <h1> tag aur ${h2Count} <h2> tag aise bikhre pade hain jaise Sunday market ki sale! LCP time ${lcpVal}s lag raha hai—itni der mein user chai peeke so jayega! ${sslActive ? 'SSL encryption theek hai' : 'Bina HTTPS ke dukan khol ke baithe ho bhai!'} Thoda taras khao user par aur DOM ko theek karo!`;
+      : hinglishBullets.map((b) => `• ${b}`).join('\n\n');
 
   const punchlines =
     roastLanguage === 'english'
@@ -267,13 +359,7 @@ Generate a viral, hilarious, and savage ${roastLanguage === 'english' ? 'Silicon
           `Largest Contentful Paint took ${lcpVal}s—users aged into a new demographic waiting for render!`,
           `Security status: ${sslActive ? 'HTTPS Active' : 'Unencrypted HTTP alert'} (X-Content: ${xContentTypeOptions ? 'Verified' : 'Missing'}).`,
         ]
-      : [
-          `Title tag ${titleLength} characters ka hai: ${titleGood ? 'Chalo fit hai!' : 'Google ne aadhi line kaat di!'}`,
-          `Meta description ${metaDescLength} characters ka—itna chhota ki chidiya bhi na chuge!`,
-          `${h1Count} H1 tags aur ${h2Count} H2 tags dhoondhne ke liye CBI ki special task force bulani padegi!`,
-          `LCP speed ${lcpVal}s hai—kabootar isse tez sandesh pahuncha de bhai!`,
-          `Security check: ${sslActive ? 'HTTPS chal raha hai' : 'Bina SSL ke website ghuma rahe ho!'} (X-Content: ${xContentTypeOptions ? 'Verified' : 'Missing'}).`,
-        ];
+      : hinglishPunchlines;
 
   const desiPrescription =
     roastLanguage === 'english'
@@ -283,12 +369,7 @@ Generate a viral, hilarious, and savage ${roastLanguage === 'english' ? 'Silicon
           `Consolidate your ${h1Count} H1 instance(s) down to strictly 1 semantic primary header.`,
           `Preload high-priority hero elements to bring that ${lcpVal}s LCP under Google's 2.5s threshold.`,
         ]
-      : [
-          `Title tag ko gym bhej kar ${titleLength} characters se 55 characters ka fit banao.`,
-          `Meta description ko ${metaDescLength} characters se badha kar 145 characters ka masala do.`,
-          `Page par se faltu H1 hatao aur strictly 1 solid primary H1 tag rakho.`,
-          `Images ko compress karo taaki ${lcpVal}s ka LCP ghat ke 2.0s ke andar aa jaye!`,
-        ];
+      : hinglishPrescription;
 
   const roastScore =
     roastLanguage === 'english'

@@ -257,7 +257,27 @@ export const HinglishRoasterTab: React.FC<HinglishRoasterTabProps> = ({
 
         {/* Savage Roast Commentary Main Body */}
         <div className="mt-6 p-5 sm:p-6 rounded-2xl bg-slate-950/80 border border-amber-500/20 text-slate-200 text-base sm:text-lg leading-relaxed relative font-medium">
-          <p className="whitespace-pre-line italic text-amber-100/90">&ldquo;{roast.savageRoast}&rdquo;</p>
+          {roast.savageRoast.includes('•') ? (
+            <div className="space-y-4">
+              {roast.savageRoast
+                .split('\n')
+                .map((line) => line.trim())
+                .filter((line) => line.length > 0)
+                .map((line, idx) => {
+                  const cleaned = line.replace(/^[•\-*]\s*/, '');
+                  return (
+                    <div key={idx} className="flex items-start gap-3.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-rose-500 mt-2 shrink-0 shadow-sm shadow-amber-500/50" />
+                      <p className="text-amber-100/95 font-medium leading-relaxed italic text-base sm:text-lg">
+                        {cleaned}
+                      </p>
+                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            <p className="whitespace-pre-line italic text-amber-100/90">&ldquo;{roast.savageRoast}&rdquo;</p>
+          )}
         </div>
 
         {/* Multi-Language Roast Toggle for Tier 1 Audience & Mirchi Intensity */}
